@@ -1013,6 +1013,7 @@ function selectTab(tab){
     curFx=tab.dataset.e;
     renderPreview();
     renderTyping();
+    if(typeof updatePurchaseUI==='function')updatePurchaseUI();
   }
 }
 
@@ -1043,6 +1044,7 @@ $$('.etabs').forEach(container=>{
           curFx=final.dataset.e;
           renderPreview();
           renderTyping();
+          updatePurchaseUI();
         }
       }
       lastNearestTab=null;
@@ -1097,6 +1099,22 @@ function renderPostPurchase(){
     wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="ppMsg">${msg}</div>`;
   }
 }
+const purchased={};
+
+function updatePurchaseUI(){
+  const btn=$('#buyBtn');
+  const disc=scrEP.querySelector('.edisc');
+  if(purchased[curFx]){
+    btn.style.visibility='hidden';
+    disc.innerHTML='Expires: <span style="color:#34C759">7 days</span>';
+    disc.style.color='rgba(255,255,255,0.35)';
+  }else{
+    btn.style.visibility='visible';
+    disc.textContent='Once you confirm, the purchase cannot be canceled';
+    disc.style.color='';
+  }
+}
+
 $('#buyBtn').onclick=()=>{
   const gemEl=scrEP.querySelector('.enav-gem');
   const gemText=gemEl?gemEl.textContent.replace(/[^0-9]/g,''):'0';
@@ -1110,14 +1128,12 @@ $('#buyBtn').onclick=()=>{
     const newBalance=gemCount-price;
     gemEl.innerHTML=gemEl.querySelector('img').outerHTML+newBalance;
   }
+  purchased[curFx]=true;
   const nm={gradient:'Gradient',outline:'Outline',dynamic:'Dynamic Font'};
   const ab={gradient:'Gr',outline:'Ou',dynamic:'Dy'};
   $('#toastTt').textContent=`You purchased ${nm[curFx]||curFx}!`;
   $('#toastIc').textContent=ab[curFx]||'FX';
-  $('#buyBtn').style.visibility='hidden';
-  const disc=scrEP.querySelector('.edisc');
-  disc.innerHTML='Expires: <span style="color:#34C759">7 days</span>';
-  disc.style.color='rgba(255,255,255,0.35)';
+  updatePurchaseUI();
   setTimeout(()=>$('#toast').classList.add('show'),300);
   setTimeout(()=>$('#toast').classList.remove('show'),4000);
 };
