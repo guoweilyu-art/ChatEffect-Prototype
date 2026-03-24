@@ -222,23 +222,31 @@ html,body{
   color:#999;cursor:pointer;background:none;padding:0;
 }
 .c-info-btn svg{width:24px;height:24px}
-.c-card{
-  background:linear-gradient(135deg,#FFF0F3,#FFE0E6);
-  border-radius:18px;padding:16px;display:flex;gap:14px;align-items:center;
+.c-list{display:flex;flex-direction:column}
+.c-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.05);
 }
-.c-icon{
-  width:64px;height:64px;border-radius:14px;background:#fff;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  font-size:22px;font-weight:900;color:#E53E3E;
+.c-item:last-child{border-bottom:none;padding-bottom:0}
+.c-item-img{
+  width:140px;height:140px;flex-shrink:0;border-radius:8px;
+  background:url('Assets/Coupon%20background.png') center/cover no-repeat;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:flex-start;
+  padding-left:10px;
 }
-.c-new{
-  display:inline-block;background:#ffe414;
-  font-size:11px;line-height:13px;font-weight:700;padding:2px 10px;border-radius:100px;margin-bottom:4px;color:#000;
+.c-price-label{
+  font-size:48px;font-weight:900;color:#1c1c1c;line-height:1;
 }
-.c-name{font-size:16px;line-height:24px;letter-spacing:-0.41px;font-weight:700;color:#111;margin-bottom:1px}
-.c-qty{font-size:12px;line-height:16px;color:#999;margin-bottom:4px}
-.c-cprice{display:flex;align-items:center;gap:4px;font-size:13px;line-height:18px;letter-spacing:-0.11px;font-weight:700;color:#111}
-.c-cprice img{width:18px;height:18px}
+.c-item-body{
+  flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;
+}
+.c-title-meta{display:flex;flex-direction:column;gap:2px}
+.c-name{font-size:14px;line-height:19px;letter-spacing:-0.15px;font-weight:600;color:#000}
+.c-qty{font-size:13px;line-height:18px;letter-spacing:-0.08px;font-weight:400;color:#7f7f7f}
+.c-cprice{display:flex;align-items:center;gap:4px;font-size:14px;line-height:19px;letter-spacing:-0.15px;font-weight:600;color:#1c1c1c}
+.c-cprice img{width:16px;height:16px}
+.c-cprice .old{text-decoration:line-through;color:#7f7f7f;font-weight:600;font-size:16px;line-height:21px;letter-spacing:-0.31px}
 
 /* ═══════════════════════════════════════
    INTRO BOTTOM SHEET
@@ -565,13 +573,36 @@ html,body{
     <!-- Coupon -->
     <div class="c-sec">
       <div class="c-hdr"><span class="sh-t">Coupon</span><button class="c-info-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M10.75 7.25c0-.7.55-1.25 1.26-1.25s1.24.55 1.24 1.25-.55 1.25-1.24 1.25-1.26-.55-1.26-1.25M13 11a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0z"/><path fill="currentColor" fill-rule="evenodd" d="M12 23c6.075 0 11-4.925 11-11S18.075 1 12 1 1 5.925 1 12s4.925 11 11 11m0-2a9 9 0 1 0 0-18 9 9 0 0 0 0 18" clip-rule="evenodd"/></svg></button></div>
-      <div class="c-card">
-        <div class="c-icon">£5</div>
-        <div>
-          <div class="c-new">New</div>
-          <div class="c-name">£5 off Coupon</div>
-          <div class="c-qty">Qty: 250</div>
-          <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="" style="width:18px;height:18px">500</div>
+      <div class="c-list">
+        <div class="c-item">
+          <div class="c-item-img"><span class="c-price-label">£5</span></div>
+          <div class="c-item-body">
+            <div class="c-title-meta">
+              <div class="c-name">£5 off Coupon</div>
+              <div class="c-qty">Qty: 250</div>
+            </div>
+            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">500</div>
+          </div>
+        </div>
+        <div class="c-item">
+          <div class="c-item-img"><span class="c-price-label">£15</span></div>
+          <div class="c-item-body">
+            <div class="c-title-meta">
+              <div class="c-name">£15 off Coupon</div>
+              <div class="c-qty">Qty: 480</div>
+            </div>
+            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">2,000 <span class="old">10,000</span></div>
+          </div>
+        </div>
+        <div class="c-item">
+          <div class="c-item-img"><span class="c-price-label">£50</span></div>
+          <div class="c-item-body">
+            <div class="c-title-meta">
+              <div class="c-name">£50 off Coupon</div>
+              <div class="c-qty">Qty: 650</div>
+            </div>
+            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">10,000</div>
+          </div>
         </div>
       </div>
     </div>
