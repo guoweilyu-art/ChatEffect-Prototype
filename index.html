@@ -349,14 +349,6 @@ html,body{
   position:absolute;inset:0;
   background:url('Assets/Background%20image.png') center/cover no-repeat;
 }
-.dark-bg::before{
-  content:'';position:absolute;inset:0;background:rgba(0,0,0,0.8);
-}
-.dark-bg::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
-  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
-}
 
 .enav{
   display:flex;align-items:center;padding:54px 16px 0;position:relative;z-index:2;height:98px;
@@ -364,26 +356,34 @@ html,body{
 .enav-back{
   width:32px;height:32px;display:flex;align-items:center;justify-content:center;
   background:#121212;border:none;cursor:pointer;border-radius:999px;flex-shrink:0;
+  position:relative;z-index:1;
 }
 .enav-back svg{width:20px;height:20px}
-.enav-title{flex:1;text-align:center;font-size:16px;line-height:21px;letter-spacing:-0.41px;font-weight:600;color:#fff}
+.enav-title{
+  position:absolute;left:0;right:0;top:54px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;line-height:21px;letter-spacing:-0.41px;font-weight:600;color:#fff;
+  pointer-events:none;
+}
 .enav-gem{
-  display:flex;align-items:center;gap:4px;
+  display:flex;align-items:center;gap:4px;margin-left:auto;
   font-size:14px;line-height:19px;letter-spacing:-0.15px;font-weight:600;color:#fff;
   padding:4px 8px 4px 4px;border-radius:999px;
+  position:relative;z-index:1;
 }
 .enav-gem img{width:32px;height:32px}
 
 /* Chat messages on dark screen */
 .echat{
   flex:1;display:flex;flex-direction:column;justify-content:center;
-  padding:0 24px;position:relative;z-index:2;gap:12px;
+  position:relative;z-index:2;gap:12px;
+  width:246px;margin:0 auto;overflow:visible;
 }
 .em{padding:0 8px}
 .em-u{font-size:14px;line-height:19px;letter-spacing:-0.15px;color:rgba(255,255,255,1);margin-bottom:0;font-weight:400;
   text-shadow:0 1px 1px rgba(0,0,0,0.25);height:18px;overflow:hidden}
 .em-t{font-size:36px;font-weight:600;line-height:43px;letter-spacing:0.37px;
-  text-shadow:0 1px 1px rgba(0,0,0,0.25)}
+  text-shadow:0 1px 1px rgba(0,0,0,0.25);white-space:nowrap}
 .em.muted{opacity:0.36}
 .em-t.white{color:#fff}
 .em-t.grad{
@@ -461,8 +461,8 @@ html,body{
   margin:0 8px;transition:all .3s ease-in-out;
 }
 .etab-sw.on{margin:0 28px}
-.etab-sw img{width:55px;height:auto;transition:width .3s ease-in-out}
-.etab-sw.on img{width:75px}
+.etab-sw img{width:48px;height:auto;transition:width .3s ease-in-out}
+.etab-sw.on img{width:68px}
 
 /* Bottom controls */
 .ebot{padding:16px 16px 34px;position:relative;z-index:2;display:flex;flex-direction:column;gap:10px}
@@ -731,10 +731,10 @@ html,body{
         <button class="etab it" data-e="outline" data-text="Outline">Outline</button>
       <button class="etab" data-e="dynamic"><span class="etab-dyn"><span>Dynamic</span><span class="etab-sm"> font</span></span></button>
       <div class="etab-sw"><img src="Assets/Hahaha.svg" alt="Hahaha"></div>
-      <button class="etab" data-e="dynamic2"><span class="etab-dyn"><span>Dynamic</span><span class="etab-sm"> font</span></span></button>
+      <div class="etab-sw" data-e="pink"><img src="Assets/PinkBubble.svg" alt="Pink"></div>
       </div>
     </div>
-    <div style="height:20px"></div>
+    <div style="height:64px"></div>
     <div class="edisc">Once you confirm, the purchase cannot be canceled</div>
     <button class="ebuy" id="buyBtn">Buy for&nbsp;<img src="Assets/Gem%20icon.png" alt="">&nbsp;400 · 7-day access</button>
   </div>
@@ -870,8 +870,8 @@ function go(scr){
 }
 
 /* Sheet */
-function openSheet(){$('#ov').classList.add('on');$('#bsheet').classList.add('on');$('#sbar').className='sbar light'}
-function closeSheet(){$('#ov').classList.remove('on');$('#bsheet').classList.remove('on');$('#sbar').className='sbar dark'}
+function openSheet(){$('#ov').classList.add('on');$('#bsheet').classList.add('on')}
+function closeSheet(){$('#ov').classList.remove('on');$('#bsheet').classList.remove('on')}
 
 let sheetShown=false;
 $('#ceBanner').onclick=()=>{
