@@ -577,7 +577,7 @@ html,body{
    ═══════════════════════════════════════ */
 .toast{
   position:absolute;top:52px;left:10px;right:10px;z-index:600;
-  background:rgba(50,50,50,.97);
+  background:rgba(255,255,255,.97);
   backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
   border-radius:18px;padding:14px 16px;
   display:flex;align-items:center;gap:12px;
@@ -592,8 +592,8 @@ html,body{
   font-size:15px;font-weight:800;color:#fff;flex-shrink:0;
   letter-spacing:-.5px;
 }
-.toast-tt{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
-.toast-st{font-size:13px;color:#aaa;line-height:1.35}
+.toast-tt{font-size:15px;font-weight:700;color:#1c1c1c;margin-bottom:2px}
+.toast-st{font-size:13px;color:#666;line-height:1.35}
 </style>
 </head>
 <body>
@@ -753,7 +753,7 @@ html,body{
   <div class="enav">
     <button class="enav-back" id="epBack"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#fff" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
     <div class="enav-title">Chat Effect</div>
-    <div class="enav-gem"><img src="Assets/Gem%20icon.png" alt="">120</div>
+    <div class="enav-gem"><img src="Assets/Gem%20icon.png" alt="">500</div>
   </div>
 
   <div class="echat" id="epChat">
@@ -842,13 +842,15 @@ html,body{
      ═══════════════════════════════════════ -->
 <div class="scr" id="scrPP" style="display:flex;flex-direction:column">
   <div class="dark-bg"></div>
-  <div class="enav"><div style="width:40px"></div><div class="enav-title"></div><div style="width:40px"></div></div>
 
   <div class="echat">
     <div class="echat-inner">
-      <div class="em"><div class="em-u">friend</div><div class="em-t muted">yay! 🥳🥳🥳</div></div>
-      <div class="em"><div class="em-u">labubunation</div><div class="em-t grad" id="ppMsg">Let's go!</div></div>
-      <div class="em"><div class="em-u">friend</div><div class="em-t muted">Hey friends!</div></div>
+      <div class="em muted"><div class="em-u">friend</div><div class="em-t white">yay! 🥳🥳🥳</div></div>
+      <div class="em" id="ppMsgWrap">
+        <div class="em-u">labubunation</div>
+        <div class="em-t grad" id="ppMsg">Let's go!</div>
+      </div>
+      <div class="em muted"><div class="em-u">friend</div><div class="em-t white">Hey friends!</div></div>
     </div>
   </div>
 
@@ -856,7 +858,7 @@ html,body{
     <div class="etabs-wrap">
       <div class="etab-indicator" id="ppIndicator"></div>
       <div class="etabs" id="ppTabs">
-        <button class="etab on" data-e="gradient">Gradient</button>
+        <button class="etab on" data-e="gradient"><span class="etab-grad">Gradient</span></button>
         <button class="etab it" data-e="outline" data-text="Outline">Outline</button>
         <button class="etab" data-e="dynamic"><span class="etab-dyn"><span>Dynamic</span><span class="etab-sm"> font</span></span></button>
       </div>
@@ -1074,13 +1076,6 @@ function renderPreview(){
   } else {
     wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="epMsg">${msg}</div>`;
   }
-  const pp=$('#ppMsg');
-  if(pp){
-    pp.className='em-t';
-    if(curFx==='gradient'){pp.classList.add('grad');pp.textContent="Let's go!";pp.removeAttribute('data-text')}
-    else if(curFx==='outline'){pp.classList.add('outl');pp.textContent="Let's go!";pp.setAttribute('data-text',"Let's go!")}
-    else{pp.classList.add('inbox');pp.textContent="Let's go!";pp.removeAttribute('data-text')}
-  }
 }
 
 function renderTyping(){
@@ -1090,18 +1085,41 @@ function renderTyping(){
 }
 
 /* Buy */
+function renderPostPurchase(){
+  const wrap=$('#ppMsgWrap');
+  if(!wrap)return;
+  const msg="Let's go!";
+  if(curFx==='gradient'){
+    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t grad" id="ppMsg">${msg}</div>`;
+  } else if(curFx==='outline'){
+    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t outl" id="ppMsg" data-text="${msg}">${msg}</div>`;
+  } else {
+    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="ppMsg">${msg}</div>`;
+  }
+}
 $('#buyBtn').onclick=()=>{
-  go(scrPP);
+  const gemEl=scrEP.querySelector('.enav-gem');
+  const gemText=gemEl?gemEl.textContent.replace(/[^0-9]/g,''):'0';
+  const gemCount=parseInt(gemText,10);
+  const price=400;
+  if(gemCount<price){
+    alert('Not enough gems! You have '+gemCount+' but need '+price);
+    return;
+  }
+  if(gemEl){
+    const newBalance=gemCount-price;
+    gemEl.innerHTML=gemEl.querySelector('img').outerHTML+newBalance;
+  }
   const nm={gradient:'Gradient',outline:'Outline',dynamic:'Dynamic Font'};
   const ab={gradient:'Gr',outline:'Ou',dynamic:'Dy'};
-  $('#toastTt').textContent=`You purchased ${nm[curFx]}!`;
-  $('#toastIc').textContent=ab[curFx];
-  setTimeout(()=>$('#toast').classList.add('show'),400);
+  $('#toastTt').textContent=`You purchased ${nm[curFx]||curFx}!`;
+  $('#toastIc').textContent=ab[curFx]||'FX';
+  $('#buyBtn').style.visibility='hidden';
+  const disc=scrEP.querySelector('.edisc');
+  disc.innerHTML='Expires: <span style="color:#34C759">7 days</span>';
+  disc.style.color='rgba(255,255,255,0.35)';
+  setTimeout(()=>$('#toast').classList.add('show'),300);
   setTimeout(()=>$('#toast').classList.remove('show'),4000);
-  // Tap anywhere on post-purchase -> typing
-  setTimeout(()=>{
-    scrPP.onclick=()=>{go(scrTS);setTimeout(()=>$('#tsInp').focus(),300);scrPP.onclick=null};
-  },500);
 };
 
 /* Keyboard */
