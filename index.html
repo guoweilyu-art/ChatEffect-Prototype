@@ -761,7 +761,7 @@ html,body{
       <div class="em muted"><div class="em-u">friend</div><div class="em-t white">yay! 🥳🥳🥳</div></div>
       <div class="em" id="epMsgWrap">
         <div class="em-u">labubunation</div>
-        <div class="em-t grad" id="epMsg">Happy Friday!!!</div>
+        <div class="em-t grad" id="epMsg" style="transition:opacity .5s ease-in-out">Happy Friday!!!</div>
       </div>
       <div class="em muted"><div class="em-u">friend</div><div class="em-t white">Hey friends!</div></div>
     </div>
@@ -1011,7 +1011,7 @@ function selectTab(tab){
   moveIndicator(tab,true);
   if(tab.dataset.e){
     curFx=tab.dataset.e;
-    renderPreview();
+    renderPreview(true);
     renderTyping();
     if(typeof updatePurchaseUI==='function')updatePurchaseUI();
   }
@@ -1042,7 +1042,7 @@ $$('.etabs').forEach(container=>{
         centerTab(final);
         if(final.dataset.e&&curFx!==final.dataset.e){
           curFx=final.dataset.e;
-          renderPreview();
+          renderPreview(true);
           renderTyping();
           updatePurchaseUI();
         }
@@ -1066,17 +1066,33 @@ document.addEventListener('click',e=>{
 
 let userMsg='Happy Friday!!!';
 
-function renderPreview(){
-  const wrap=$('#epMsgWrap');
-  const msg=userMsg;
-  if(curFx==='gradient'){
-    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t grad" id="epMsg">${msg}</div>`;
-  } else if(curFx==='outline'){
-    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t outl" id="epMsg" data-text="${msg}">${msg}</div>`;
-  } else if(curFx==='dynamic'){
-    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="epMsg">${msg}</div>`;
-  } else {
-    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="epMsg">${msg}</div>`;
+function applyFxStyle(el,fx){
+  el.className='em-t';
+  el.removeAttribute('data-text');
+  el.style.cssText='';
+  if(fx==='gradient')el.classList.add('grad');
+  else if(fx==='outline'){el.classList.add('outl');el.setAttribute('data-text',el.textContent)}
+  else el.classList.add('white');
+}
+
+function renderPreview(animate){
+  const msg=$('#epMsg');
+  if(!msg)return;
+  if(animate){
+    const inner=$('.echat-inner');
+    if(inner){
+      inner.style.transition='opacity .25s ease-in-out';
+      inner.style.opacity='0';
+      setTimeout(()=>{
+        msg.textContent=userMsg;
+        applyFxStyle(msg,curFx);
+        inner.style.opacity='1';
+      },250);
+    }
+    return;
+  }else{
+    msg.textContent=userMsg;
+    applyFxStyle(msg,curFx);
   }
 }
 
