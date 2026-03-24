@@ -495,6 +495,33 @@ html,body{
 .eexp{font-size:14px;color:rgba(255,255,255,.35);text-align:center;margin-top:14px}
 .eexp span{color:#22C55E}
 
+/* ── Edit mode on preview screen ── */
+.em.muted,.em-u,.enav,.ebot .edisc,.ebot .ebuy,.ebot>div[style]{
+  transition:opacity .4s ease-in-out,transform .4s ease-in-out;
+}
+.scr.editing .em.muted{opacity:0;pointer-events:none;height:0;overflow:hidden;transition:opacity .4s ease-in-out}
+.scr.editing .em-u{opacity:0;height:0;overflow:hidden;transition:opacity .4s ease-in-out}
+.scr.editing .ebot .edisc{display:none}
+.scr.editing .ebot .ebuy{display:none}
+.scr.editing .ebot>div[style="height:64px"]{display:none}
+.scr.editing .enav{opacity:0;pointer-events:none;transition:opacity .4s ease-in-out}
+.ep-kb{overflow:hidden;max-height:0;transition:max-height .4s ease-in-out;z-index:2;margin:0 -16px}
+.scr.editing .ebot{padding-bottom:0;gap:0}
+.echat{transition:padding .4s ease-in-out}
+.scr.editing .echat{padding:36px}
+.echat-inner{transition:max-width .4s ease-in-out}
+.scr.editing .echat-inner{max-width:100%}
+.etabs-wrap{transition:margin .4s ease-in-out}
+.scr.editing .ep-kb{max-height:400px;margin-top:20px}
+.ep-cursor{
+  display:inline-block;width:2px;height:0.9em;background:#fff;
+  vertical-align:baseline;margin-left:2px;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ep-kb .kb{position:relative;padding-bottom:45px}
+.em-t[contenteditable]{outline:none;caret-color:rgba(255,255,255,.7);cursor:text;-webkit-user-select:text;user-select:text}
+
 /* ═══════════════════════════════════════
    TYPING SCREEN
    ═══════════════════════════════════════ */
@@ -754,6 +781,26 @@ html,body{
     <div style="height:64px"></div>
     <div class="edisc">Once you confirm, the purchase cannot be canceled</div>
     <button class="ebuy" id="buyBtn">Buy for&nbsp;<img src="Assets/Gem%20icon.png" alt="">&nbsp;400 · 7-day access</button>
+    <div class="ep-kb">
+      <div class="kb">
+        <div class="kr">
+          <div class="k ek">Q</div><div class="k ek">W</div><div class="k ek">E</div><div class="k ek">R</div><div class="k ek">T</div><div class="k ek">Y</div><div class="k ek">U</div><div class="k ek">I</div><div class="k ek">O</div><div class="k ek">P</div>
+        </div>
+        <div class="kr" style="padding:0 18px">
+          <div class="k ek">A</div><div class="k ek">S</div><div class="k ek">D</div><div class="k ek">F</div><div class="k ek">G</div><div class="k ek">H</div><div class="k ek">J</div><div class="k ek">K</div><div class="k ek">L</div>
+        </div>
+        <div class="kr">
+          <div class="k sp ek">⇧</div>
+          <div class="k ek">Z</div><div class="k ek">X</div><div class="k ek">C</div><div class="k ek">V</div><div class="k ek">B</div><div class="k ek">N</div><div class="k ek">M</div>
+          <div class="k sp ek">⌫</div>
+        </div>
+        <div class="kr">
+          <div class="k sp ek">123</div>
+          <div class="k spc ek">space</div>
+          <div class="k dn ek">Done</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="ov" id="ov"></div>
   <div class="bs" id="bsheet">
@@ -1013,15 +1060,17 @@ document.addEventListener('click',e=>{
   centerTab(t);
 });
 
+let userMsg='Happy Friday!!!';
+
 function renderPreview(){
   const wrap=$('#epMsgWrap');
-  const msg='Happy Friday!!!';
+  const msg=userMsg;
   if(curFx==='gradient'){
     wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t grad" id="epMsg">${msg}</div>`;
   } else if(curFx==='outline'){
     wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t outl" id="epMsg" data-text="${msg}">${msg}</div>`;
   } else if(curFx==='dynamic'){
-    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="epMsg" style="font-size:36px">Happy <span style="font-size:20px">Friday!!!</span></div>`;
+    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="epMsg">${msg}</div>`;
   } else {
     wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t inbox" id="epMsg">${msg}</div>`;
   }
@@ -1070,6 +1119,59 @@ $$('.k').forEach(k=>{
 });
 $('#tsInp').addEventListener('input',()=>{
   $('#tsPh').style.display=$('#tsInp').textContent.length?'none':'';
+});
+
+/* Edit mode on preview screen */
+function enterEditMode(){
+  scrEP.classList.add('editing');
+  const msg=$('#epMsg');
+  if(msg&&!msg.querySelector('.ep-cursor')){
+    const cursor=document.createElement('span');
+    cursor.className='ep-cursor';
+    msg.appendChild(cursor);
+  }
+}
+function exitEditMode(){
+  const msg=$('#epMsg');
+  if(msg){
+    const cursor=msg.querySelector('.ep-cursor');
+    if(cursor)cursor.remove();
+    const txt=msg.textContent.trim();
+    if(txt.length>0)userMsg=txt;
+  }
+  scrEP.classList.remove('editing');
+  renderPreview();
+}
+
+document.addEventListener('click',e=>{
+  if(!scrEP.classList.contains('on'))return;
+  if(scrEP.classList.contains('editing')){
+    if(!e.target.closest('.ep-kb')&&!e.target.closest('#epMsg')&&!e.target.closest('.etabs-wrap')){
+      exitEditMode();
+    }
+    return;
+  }
+  const msg=e.target.closest('#epMsg');
+  if(msg){enterEditMode();return}
+});
+
+$$('.ek').forEach(k=>{
+  k.addEventListener('click',e=>{
+    e.stopPropagation();
+    const msg=$('#epMsg');
+    if(!msg||!scrEP.classList.contains('editing'))return;
+    const cursor=msg.querySelector('.ep-cursor');
+    const t=k.textContent;
+    if(k.classList.contains('dn')){exitEditMode();return}
+    if(cursor)cursor.remove();
+    if(t==='⌫'){msg.textContent=msg.textContent.slice(0,-1)}
+    else if(t==='⇧'||t==='123'){/* no-op */}
+    else if(t==='space')msg.textContent+=' ';
+    else msg.textContent+=t;
+    if(msg.dataset.text!==undefined)msg.setAttribute('data-text',msg.textContent);
+    const nc=document.createElement('span');nc.className='ep-cursor';
+    msg.appendChild(nc);
+  });
 });
 </script>
 
