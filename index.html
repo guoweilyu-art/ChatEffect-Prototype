@@ -164,34 +164,80 @@ html,body{
 .jthumb.selected .jthumb-gem{display:none}
 
 /* ── Chat Effect ── */
-.ce-hdr{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.ce-hdr{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .beta-tag{
-  background:#ffe414;font-size:11px;line-height:13px;font-weight:700;
-  padding:3px 10px;border-radius:100px;color:#000;
+  background:#ffe414;font-size:12px;line-height:12px;font-weight:600;
+  padding:4px 10px;border-radius:100px;color:#000;
 }
 .ce-banner{
-  border-radius:20px;overflow:hidden;
-  height:150px;position:relative;cursor:pointer;
-  background:#1C1C1E;
-  display:flex;align-items:center;justify-content:center;padding:0 16px;
+  border-radius:16px;overflow:hidden;
+  height:186px;position:relative;cursor:pointer;
+  isolation:isolate;-webkit-mask-image:-webkit-radial-gradient(white,black);
 }
-.ce-tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
-.ce-t{
-  padding:8px 16px;border-radius:10px;
-  font-weight:800;font-style:italic;display:inline-block;
+.ce-banner-bg{
+  position:absolute;inset:0;
+  background:url('Assets/Background%20image.png') center/cover no-repeat;
 }
-.ce-t.g{background:linear-gradient(135deg,#FF6B9D,#E040A0);color:#fff;font-size:16px;transform:rotate(-8deg)}
-.ce-t.o{border:2px solid #C084FC;color:#C084FC;background:transparent;font-size:15px;transform:rotate(-3deg)}
-.ce-t.d{
-  background:#555;color:#ccc;font-size:10px;font-style:normal;
-  padding:6px 8px;font-weight:600;border-radius:6px;transform:rotate(5deg);
-  line-height:1.4;
+.ce-pill{
+  position:absolute;
+  padding:8px 12px;border-radius:999px;
+  background:rgba(255,255,255,0.2);
+  font-weight:600;font-size:16px;line-height:21px;letter-spacing:-0.31px;
+  white-space:nowrap;
 }
-.ce-box{width:56px;height:26px;border:2px solid #999;border-radius:6px;background:transparent}
-.ce-px{
-  width:56px;height:28px;border-radius:3px;
-  background:linear-gradient(90deg,#22C55E,#4ADE80);
-  image-rendering:pixelated;
+.ce-pill.gradient{
+  left:0;top:127px;transform:rotate(-15deg);
+  transform-origin:center;
+}
+.ce-pill.gradient span{
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  font-weight:600;font-size:16px;line-height:21px;
+}
+.ce-pill.dynamic{
+  left:211px;top:34px;transform:rotate(-15deg);
+  color:#fff;
+}
+.ce-pill.dynamic .sm{font-size:10px;line-height:18px;letter-spacing:-0.08px}
+.ce-pill.outline{
+  left:89px;top:134px;transform:rotate(15deg);
+  color:#fff;font-weight:760;font-size:13px;line-height:18px;letter-spacing:-0.08px;
+  font-variation-settings:'wdth' 132;font-stretch:expanded;
+  position:absolute;
+}
+.ce-pill.outline::before{
+  content:attr(data-text);
+  position:absolute;top:8px;left:12px;
+  font-weight:inherit;font-size:inherit;line-height:inherit;letter-spacing:inherit;
+  font-variation-settings:inherit;font-stretch:inherit;
+  -webkit-text-fill-color:transparent;
+  -webkit-text-stroke:3px transparent;
+  background:linear-gradient(180deg,#9CE3FF,#688CFF);
+  -webkit-background-clip:text;background-clip:text;
+  z-index:0;
+}
+.ce-pill.outline span{position:relative;z-index:1}
+.ce-pink{
+  position:absolute;left:-9px;top:65px;
+  width:96px;height:48px;
+  transform:rotate(15deg);
+}
+.ce-pink img{width:100%;height:100%;object-fit:contain}
+.ce-input{
+  position:absolute;left:110px;top:96px;
+  width:177px;height:57px;
+}
+.ce-input img{width:100%;height:100%;object-fit:contain}
+.ce-pixel{
+  position:absolute;left:249px;top:126px;transform:rotate(-15deg);
+  width:98px;height:30px;overflow:hidden;
+}
+.ce-pixel-inner{
+  position:absolute;inset:6% 4% 6% 13%;
+  background:#38bc0f;border-radius:2px;
+}
+.ce-pixel-border{
+  position:absolute;background:#fff;
 }
 
 /* ── Reaction ── */
@@ -225,15 +271,15 @@ html,body{
 .c-list{display:flex;flex-direction:column}
 .c-item{
   display:flex;gap:12px;align-items:flex-start;
-  padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.05);
+  padding:16px 0;border-bottom:1px solid rgba(0,0,0,0.05);
 }
+.c-item:first-child{padding-top:0}
 .c-item:last-child{border-bottom:none;padding-bottom:0}
 .c-item-img{
   width:140px;height:140px;flex-shrink:0;border-radius:8px;
   background:url('Assets/Coupon%20background.png') center/cover no-repeat;
   position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:flex-start;
-  padding-left:10px;
+  display:flex;align-items:center;justify-content:center;
 }
 .c-price-label{
   font-size:48px;font-weight:900;color:#1c1c1c;line-height:1;
@@ -539,12 +585,14 @@ html,body{
     <!-- Chat Effect -->
     <div class="ce-hdr"><span class="sh-t">Chat Effect</span><span class="beta-tag">Beta</span></div>
     <div class="ce-banner" id="ceBanner">
-      <div class="ce-tags">
-        <div class="ce-t g">Gradient</div>
-        <div class="ce-t o">Outline</div>
-        <div class="ce-box"></div>
-        <div class="ce-t d">Dynamic<span style="font-size:8px;vertical-align:super;">font</span>In<span style="font-size:8px;vertical-align:super;">chat</span></div>
-        <div class="ce-px"></div>
+      <div class="ce-banner-bg"></div>
+      <div class="ce-pink"><img src="Assets/Chat%20bubble%20pink.png" alt=""></div>
+      <div class="ce-pill dynamic">Dynamic<span class="sm">font</span>In<span class="sm">chat</span></div>
+      <div class="ce-input"><img src="Assets/Chat%20bubble%20white.png" alt=""></div>
+      <div class="ce-pill gradient"><span>Gradient</span></div>
+      <div class="ce-pill outline" data-text="Outline"><span>Outline</span></div>
+      <div class="ce-pixel">
+        <div class="ce-pixel-inner"></div>
       </div>
     </div>
 
