@@ -408,8 +408,10 @@ html,body{
 /* Effect tabs */
 .etabs{
   display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;
-  position:relative;z-index:2;padding:0 16px;
+  position:relative;z-index:2;
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;
 }
+.etabs::before,.etabs::after{content:'';flex-shrink:0}
 .etabs::-webkit-scrollbar{display:none}
 .etab{
   padding:10px 8px;border-radius:999px;height:28px;box-sizing:content-box;
@@ -418,18 +420,26 @@ html,body{
   background:transparent;border:none;font-family:inherit;
   transition:all .2s ease;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
+  scroll-snap-align:center;
 }
-.etab.on{background:rgba(255,255,255,.2);padding:10px 16px;font-size:20px;line-height:18px}
+.etab.on{padding:10px 16px;font-size:20px;line-height:18px}
 .etab.on .etab-grad{
   background:linear-gradient(90deg,#a3fff6,#f9ff8f);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
+.etab-indicator{
+  position:absolute;height:48px;border-radius:999px;
+  background:rgba(255,255,255,0.2);
+  transition:left .3s cubic-bezier(.32,.72,0,1),width .3s cubic-bezier(.32,.72,0,1);
+  z-index:0;pointer-events:none;top:0;
+}
+.etab,.etab-sw{position:relative;z-index:1}
 .etab.it{font-weight:760;font-variation-settings:'wdth' 132;font-stretch:expanded}
 .etab-sm{font-size:8px;font-weight:600}
 .etab-sw{
   width:55px;height:28px;border-radius:999px;cursor:pointer;flex-shrink:0;
   background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;
-  padding:10px 8px;
+  padding:10px 8px;scroll-snap-align:center;
 }
 
 /* Bottom controls */
@@ -692,7 +702,8 @@ html,body{
   </div>
 
   <div class="ebot">
-    <div class="etabs" id="epTabs">
+    <div class="etabs" id="epTabs" style="position:relative">
+      <div class="etab-indicator" id="epIndicator"></div>
       <button class="etab on" data-e="gradient"><span class="etab-grad">Gradient</span></button>
       <button class="etab it" data-e="outline">Outline</button>
       <button class="etab" data-e="dynamic">Dynamic<span class="etab-sm"> font</span></button>
@@ -752,7 +763,8 @@ html,body{
   </div>
 
   <div class="ebot">
-    <div class="etabs" id="ppTabs">
+    <div class="etabs" id="ppTabs" style="position:relative">
+      <div class="etab-indicator" id="ppIndicator"></div>
       <button class="etab on" data-e="gradient">Gradient</button>
       <button class="etab it" data-e="outline">Outline</button>
       <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
@@ -838,6 +850,7 @@ function closeSheet(){$('#ov').classList.remove('on');$('#bsheet').classList.rem
 let sheetShown=false;
 $('#ceBanner').onclick=()=>{
   go(scrEP);
+  setTimeout(updateTabPadding,50);
   if(!sheetShown){
     sheetShown=true;
     setTimeout(()=>openSheet(),400);
@@ -851,14 +864,83 @@ $('#epBack').onclick=()=>{closeSheet();go(scrGS)};
 $('#tsBack').onclick=()=>go(scrEP);
 $('#doneKey').onclick=()=>go(scrEP);
 
-/* Tab switching */
+/* Tab switching + snap-to-center */
+function moveIndicator(tab,animate){
+  const container=tab.closest('.etabs');
+  if(!container)return;
+  const indicator=container.querySelector('.etab-indicator');
+  if(!indicator)return;
+  if(!animate)indicator.style.transition='none';
+  indicator.style.left=tab.offsetLeft+'px';
+  indicator.style.width=tab.offsetWidth+'px';
+  if(!animate)requestAnimationFrame(()=>indicator.style.transition='');
+}
+
+function centerTab(tab){
+  const container=tab.closest('.etabs');
+  if(!container)return;
+  const containerW=container.offsetWidth;
+  container.scrollTo({left:tab.offsetLeft-containerW/2+tab.offsetWidth/2,behavior:'smooth'});
+}
+
+function updateTabPadding(){
+  $$('.etabs').forEach(container=>{
+    const containerW=container.offsetWidth;
+    const pad=containerW/2;
+    container.style.paddingLeft=pad+'px';
+    container.style.paddingRight=pad+'px';
+    const active=container.querySelector('.etab.on,.etab-sw.on');
+    if(active){centerTab(active);moveIndicator(active,false);}
+  });
+}
+setTimeout(updateTabPadding,100);
+window.addEventListener('resize',updateTabPadding);
+
+function findCenterTab(container){
+  const centerX=container.scrollLeft+container.offsetWidth/2;
+  let closest=null,minDist=Infinity;
+  container.querySelectorAll('.etab,.etab-sw').forEach(tab=>{
+    const tabCenter=tab.offsetLeft+tab.offsetWidth/2;
+    const dist=Math.abs(tabCenter-centerX);
+    if(dist<minDist){minDist=dist;closest=tab}
+  });
+  return closest;
+}
+
+function selectTab(tab){
+  if(!tab)return;
+  const container=tab.closest('.etabs');
+  container.querySelectorAll('.etab,.etab-sw').forEach(b=>b.classList.remove('on'));
+  tab.classList.add('on');
+  moveIndicator(tab,true);
+  if(tab.dataset.e){
+    curFx=tab.dataset.e;
+    renderPreview();
+    renderTyping();
+  }
+}
+
+$$('.etabs').forEach(container=>{
+  let scrollTimer2=null;
+  container.addEventListener('scroll',()=>{
+    const ct=findCenterTab(container);
+    if(ct)moveIndicator(ct,true);
+    clearTimeout(scrollTimer2);
+    scrollTimer2=setTimeout(()=>{
+      const final=findCenterTab(container);
+      if(final&&!final.classList.contains('on')){
+        selectTab(final);
+        centerTab(final);
+      }
+    },150);
+  },{passive:true});
+});
+
 document.addEventListener('click',e=>{
   const t=e.target.closest('.etab[data-e]');
   if(!t)return;
-  curFx=t.dataset.e;
-  $$('.etab[data-e]').forEach(b=>b.classList.toggle('on',b.dataset.e===curFx));
-  renderPreview();
-  renderTyping();
+  selectTab(t);
+  centerTab(t);
 });
 
 function renderPreview(){
