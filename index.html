@@ -586,12 +586,12 @@ html,body{
     <div class="ce-hdr"><span class="sh-t">Chat Effect</span><span class="beta-tag">Beta</span></div>
     <div class="ce-banner" id="ceBanner">
       <div class="ce-banner-bg"></div>
-      <div class="ce-pink"><img src="Assets/Chat%20bubble%20pink.png" alt=""></div>
-      <div class="ce-pill dynamic">Dynamic<span class="sm">font</span>In<span class="sm">chat</span></div>
-      <div class="ce-input"><img src="Assets/Chat%20bubble%20white.png" alt=""></div>
-      <div class="ce-pill gradient"><span>Gradient</span></div>
-      <div class="ce-pill outline" data-text="Outline"><span>Outline</span></div>
-      <div class="ce-pixel">
+      <div class="ce-pink ce-phys"><img src="Assets/Chat%20bubble%20pink.png" alt=""></div>
+      <div class="ce-pill dynamic ce-phys">Dynamic<span class="sm">font</span>In<span class="sm">chat</span></div>
+      <div class="ce-input ce-phys"><img src="Assets/Chat%20bubble%20white.png" alt=""></div>
+      <div class="ce-pill gradient ce-phys"><span>Gradient</span></div>
+      <div class="ce-pill outline ce-phys" data-text="Outline"><span>Outline</span></div>
+      <div class="ce-pixel ce-phys">
         <div class="ce-pixel-inner"></div>
       </div>
     </div>
@@ -891,6 +891,128 @@ $$('.k').forEach(k=>{
 $('#tsInp').addEventListener('input',()=>{
   $('#tsPh').style.display=$('#tsInp').textContent.length?'none':'';
 });
+
+/* ── Chat Effect Physics ── */
+(function(){
+  const banner=document.getElementById('ceBanner');
+  const scroller=document.querySelector('.gs-body');
+  if(!banner||!scroller)return;
+
+  const GRAVITY=980;
+  const BOUNCE=0.35;
+  const FRICTION=0.92;
+  const SCROLL_FORCE=2.5;
+  const CONTAINER_H=186;
+
+  const els=banner.querySelectorAll('.ce-phys');
+  const bodies=[];
+
+  els.forEach(el=>{
+    const style=getComputedStyle(el);
+    const rect=el.getBoundingClientRect();
+    const bannerRect=banner.getBoundingClientRect();
+    const x=rect.left-bannerRect.left;
+    const y=rect.top-bannerRect.top;
+    const h=rect.height;
+    const rot=parseFloat(el.style.transform||'0')||0;
+
+    const cs=style.transform;
+    let initRot=0;
+    if(cs&&cs!=='none'){
+      const m=cs.match(/matrix\(([^)]+)\)/);
+      if(m){
+        const v=m[1].split(',').map(Number);
+        initRot=Math.atan2(v[1],v[0])*180/Math.PI;
+      }
+    }
+
+    bodies.push({
+      el,
+      homeX:parseFloat(style.left)||x,
+      homeY:parseFloat(style.top)||y,
+      x:parseFloat(style.left)||x,
+      y:parseFloat(style.top)||y,
+      vx:0,vy:0,
+      h,
+      rot:initRot,
+      rotV:0,
+      homeRot:initRot
+    });
+  });
+
+  let lastScroll=scroller.scrollTop;
+  let scrollDelta=0;
+  let lastTime=performance.now();
+  let running=false;
+  let scrolling=false;
+  let scrollTimer=null;
+
+  scroller.addEventListener('scroll',()=>{
+    const now=scroller.scrollTop;
+    scrollDelta+=(now-lastScroll);
+    lastScroll=now;
+    scrolling=true;
+    clearTimeout(scrollTimer);
+    scrollTimer=setTimeout(()=>{scrolling=false},80);
+    if(!running){running=true;lastTime=performance.now();tick();}
+  },{passive:true});
+
+  function tick(){
+    const now=performance.now();
+    const dt=Math.min((now-lastTime)/1000,0.033);
+    lastTime=now;
+
+    if(scrolling&&Math.abs(scrollDelta)>0.5){
+      const impulse=-scrollDelta*SCROLL_FORCE;
+      bodies.forEach(b=>{
+        b.vy+=impulse;
+        b.rotV+=(Math.random()-0.5)*scrollDelta*0.8;
+      });
+      scrollDelta=0;
+    }
+
+    let anyMoving=false;
+    bodies.forEach(b=>{
+      b.vy+=GRAVITY*dt;
+
+      b.vx*=FRICTION;
+      b.vy*=FRICTION;
+      b.rotV*=0.95;
+
+      b.x+=b.vx*dt;
+      b.y+=b.vy*dt;
+      b.rot+=b.rotV*dt;
+
+      const ground=CONTAINER_H-b.h;
+      if(b.y>ground){
+        b.y=ground;
+        if(Math.abs(b.vy)>15){
+          b.vy*=-BOUNCE;
+          b.rotV+=(Math.random()-0.5)*40;
+        }else{
+          b.vy=0;
+        }
+      }
+      if(b.y<-b.h*0.5){
+        b.y=-b.h*0.5;
+        b.vy*=-BOUNCE*0.5;
+      }
+
+      const speed=Math.abs(b.vx)+Math.abs(b.vy)+Math.abs(b.rotV);
+      if(speed>0.5)anyMoving=true;
+
+      b.el.style.left=b.x+'px';
+      b.el.style.top=b.y+'px';
+      b.el.style.transform='rotate('+b.rot+'deg)';
+    });
+
+    if(anyMoving||scrolling){
+      requestAnimationFrame(tick);
+    }else{
+      running=false;
+    }
+  }
+})();
 </script>
 
 </body>
