@@ -272,45 +272,73 @@ html,body{
 
 .bs{
   position:absolute;bottom:0;left:0;right:0;z-index:51;
-  background:#fff;border-radius:20px 20px 0 0;
+  background:#fff;border-radius:24px 24px 0 0;
   transform:translateY(100%);
   transition:transform .42s cubic-bezier(.32,.72,0,1);
-  padding-bottom:34px;
+  padding-bottom:34px;overflow:hidden;
 }
 .bs.on{transform:translateY(0)}
-.bs-handle{width:36px;height:5px;border-radius:100px;background:#DDD;margin:10px auto 6px}
-.bs-body{padding:4px 24px 0}
+.bs-handle{width:40px;height:4px;border-radius:30px;background:#e6e6e6;margin:8px auto 12px}
+.bs-body{display:flex;flex-direction:column;gap:24px;align-items:center;padding:0 0 12px}
 
 .cp-card{
-  background:#2C2C2E;border-radius:18px;
-  padding:22px 18px;margin-bottom:22px;
+  width:345px;height:230px;border-radius:16px;overflow:hidden;
+  position:relative;box-shadow:0 4px 8px rgba(0,0,0,0.02);
+  background:#2d2d2d;isolation:isolate;-webkit-mask-image:-webkit-radial-gradient(white,black);
 }
-.cp-msg{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start}
-.cp-msg:last-child{margin-bottom:0}
-.cp-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.cp-card-bg{
+  position:absolute;inset:0;
+  background:url('Assets/Background%20image.png') center/cover no-repeat;
+}
+.cp-card-bg::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.8)}
+.cp-card-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+}
+.cp-thread{
+  position:absolute;left:29px;top:50%;transform:translateY(-50%);
+  width:287px;z-index:2;
+}
+.cp-msg-mid{position:relative}
+.cp-msg-mid .cp-highlight{
+  position:absolute;top:-2px;bottom:-2px;left:0;right:0;border-radius:6px;
+  background:linear-gradient(90deg,rgba(255,255,255,0),#fff);
+  opacity:0.32;z-index:0;
+}
+.cp-msg-mid .cp-msg{position:relative;z-index:1}
+.cp-msg-top,.cp-msg-bot{padding:0}
+.cp-msg-top{margin-bottom:10px}
+.cp-msg-bot{margin-top:10px}
+.cp-msg{display:flex;gap:8px;align-items:flex-start;padding:0}
+.cp-msg.dim{opacity:0.6}
+.cp-av{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-top:2px}
 .cp-av img{width:100%;height:100%;object-fit:cover}
-.cp-user{font-size:13px;color:#999;margin-bottom:2px}
-.cp-text{font-size:15px;color:#fff;line-height:1.35}
+.cp-user{font-size:14px;line-height:19px;letter-spacing:-0.15px;color:rgba(255,255,255,0.8);font-weight:400;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25);height:18px;overflow:hidden}
+.cp-text{font-size:13px;line-height:18px;letter-spacing:-0.08px;color:#fff;font-weight:600;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25)}
 .cp-text.gfx{
-  background:linear-gradient(90deg,#56D364,#22C55E);
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;font-weight:600;font-size:16px;
+  background-clip:text;font-weight:600;font-size:13px;line-height:21px;letter-spacing:-0.31px;
 }
 
+.bs-texts{padding:0 40px;text-align:center;display:flex;flex-direction:column;gap:12px}
 .bs-title{
-  font-size:24px;line-height:30px;letter-spacing:0.09px;font-weight:700;
-  text-align:center;color:#111;margin-bottom:10px;
+  font-size:28px;line-height:34px;letter-spacing:0.38px;font-weight:600;
+  color:#1c1c1c;
 }
 .bs-desc{
-  font-size:14px;line-height:22px;letter-spacing:-0.2px;
-  color:#999;text-align:center;margin-bottom:22px;
+  font-size:16px;line-height:21px;letter-spacing:-0.31px;
+  color:#545454;font-weight:400;
 }
-/* "Browse now" — design system secondary button, full-width, lg */
+.bs-tray{padding:16px 16px 0;width:100%;box-sizing:border-box}
 .bs-btn{
   width:100%;display:flex;align-items:center;justify-content:center;
   height:48px;background:#1c1c1c;color:#fff;
-  border:1px solid transparent;border-radius:999px;
-  font-size:13px;line-height:18px;font-weight:600;
+  border:none;border-radius:999px;
+  font-size:16px;line-height:20px;letter-spacing:-0.41px;font-weight:600;
   cursor:pointer;font-family:inherit;
 }
 
@@ -321,35 +349,45 @@ html,body{
   position:absolute;inset:0;
   background:url('Assets/Background%20image.png') center/cover no-repeat;
 }
+.dark-bg::before{
+  content:'';position:absolute;inset:0;background:rgba(0,0,0,0.8);
+}
 .dark-bg::after{
   content:'';position:absolute;inset:0;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
 }
 
 .enav{
-  display:flex;align-items:center;padding:60px 16px 8px;position:relative;z-index:2;
+  display:flex;align-items:center;padding:54px 16px 0;position:relative;z-index:2;height:98px;
 }
 .enav-back{
-  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
-  background:none;border:none;cursor:pointer;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:#121212;border:none;cursor:pointer;border-radius:999px;flex-shrink:0;
 }
-.enav-back svg{width:24px;height:24px}
-.enav-title{flex:1;text-align:center;font-size:17px;font-weight:700;color:#fff}
-.enav-gem{display:flex;align-items:center;gap:4px;font-size:15px;font-weight:700;color:#fff}
-.enav-gem img{width:24px;height:24px}
+.enav-back svg{width:20px;height:20px}
+.enav-title{flex:1;text-align:center;font-size:16px;line-height:21px;letter-spacing:-0.41px;font-weight:600;color:#fff}
+.enav-gem{
+  display:flex;align-items:center;gap:4px;
+  font-size:14px;line-height:19px;letter-spacing:-0.15px;font-weight:600;color:#fff;
+  padding:4px 8px 4px 4px;border-radius:999px;
+}
+.enav-gem img{width:32px;height:32px}
 
 /* Chat messages on dark screen */
 .echat{
   flex:1;display:flex;flex-direction:column;justify-content:center;
-  padding:0 24px;position:relative;z-index:2;
+  padding:0 24px;position:relative;z-index:2;gap:12px;
 }
-.em{margin-bottom:10px}
-.em-u{font-size:14px;color:rgba(255,255,255,.45);margin-bottom:4px;font-weight:400}
-.em-t{font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.3px}
-.em-t.muted{color:rgba(255,255,255,.25)}
+.em{padding:0 8px}
+.em-u{font-size:14px;line-height:19px;letter-spacing:-0.15px;color:rgba(255,255,255,1);margin-bottom:0;font-weight:400;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25);height:18px;overflow:hidden}
+.em-t{font-size:36px;font-weight:600;line-height:43px;letter-spacing:0.37px;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25)}
+.em.muted{opacity:0.36}
+.em-t.white{color:#fff}
 .em-t.grad{
-  background:linear-gradient(90deg,#A8E063,#56AB2F,#22C55E);
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
 }
@@ -357,7 +395,7 @@ html,body{
   color:transparent;-webkit-text-stroke:2px #22C55E;
   font-weight:900;font-style:italic;
 }
-.em-t.inbox{color:#fff;font-weight:700}
+.em-t.inbox{color:#fff;font-weight:600}
 .em-box{
   border:2.5px solid #22C55E;border-radius:12px;
   padding:6px 14px 10px;display:inline-block;position:relative;
@@ -369,38 +407,44 @@ html,body{
 
 /* Effect tabs */
 .etabs{
-  display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;
-  position:relative;z-index:2;padding:0 20px;
+  display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  position:relative;z-index:2;padding:0 16px;
 }
 .etabs::-webkit-scrollbar{display:none}
 .etab{
-  padding:11px 22px;border-radius:100px;
-  font-size:16px;font-weight:600;cursor:pointer;
-  white-space:nowrap;color:rgba(255,255,255,.45);
+  padding:10px 8px;border-radius:999px;height:28px;box-sizing:content-box;
+  font-size:14px;font-weight:600;cursor:pointer;
+  white-space:nowrap;color:rgba(255,255,255,1);
   background:transparent;border:none;font-family:inherit;
   transition:all .2s ease;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
 }
-.etab.on{background:rgba(255,255,255,.14);color:#fff}
-.etab.it{font-style:italic;font-weight:800}
-.etab-sm{font-size:12px;font-weight:400}
+.etab.on{background:rgba(255,255,255,.2);padding:10px 16px;font-size:20px;line-height:18px}
+.etab.on .etab-grad{
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.etab.it{font-weight:760;font-variation-settings:'wdth' 132;font-stretch:expanded}
+.etab-sm{font-size:8px;font-weight:600}
 .etab-sw{
-  width:44px;height:44px;border-radius:100px;cursor:pointer;flex-shrink:0;
+  width:55px;height:28px;border-radius:999px;cursor:pointer;flex-shrink:0;
+  background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;
+  padding:10px 8px;
 }
-.etab-sw.grn{background:linear-gradient(135deg,#22C55E,#16A34A)}
-.etab-sw.pnk{background:linear-gradient(135deg,#EC4899,#DB2777)}
 
 /* Bottom controls */
-.ebot{padding:20px 20px 42px;position:relative;z-index:2}
-.edisc{font-size:13px;color:rgba(255,255,255,.35);text-align:center;margin-bottom:12px}
-/* "Buy" — design system hollow button, full-width, lg */
+.ebot{padding:16px 16px 34px;position:relative;z-index:2;display:flex;flex-direction:column;gap:10px}
+.edisc{font-size:12px;line-height:16px;color:#aaa;text-align:center;font-weight:400}
 .ebuy{
-  width:100%;height:48px;background:#fff;color:#000;
-  border:1px solid transparent;border-radius:999px;
-  font-size:13px;line-height:18px;font-weight:600;
+  width:100%;height:44px;
+  background:rgba(255,255,255,0.2);color:#fff;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:none;border-radius:999px;
+  font-size:16px;line-height:20px;letter-spacing:-0.41px;font-weight:600;
   cursor:pointer;font-family:inherit;
-  display:flex;align-items:center;justify-content:center;gap:5px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
 }
-.ebuy img{width:22px;height:22px}
+.ebuy img{width:20px;height:20px}
 .eexp{font-size:14px;color:rgba(255,255,255,.35);text-align:center;margin-top:14px}
 .eexp span{color:#22C55E}
 
@@ -628,33 +672,6 @@ html,body{
 </div>
 
 <!-- ═══════════════════════════════════════
-     BOTTOM SHEET: INTRO
-     ═══════════════════════════════════════ -->
-<div class="ov" id="ov"></div>
-<div class="bs" id="bsheet">
-  <div class="bs-handle"></div>
-  <div class="bs-body">
-    <div class="cp-card">
-      <div class="cp-msg">
-        <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
-        <div><div class="cp-user">andy</div><div class="cp-text">yay! 🥳🥳🥳</div></div>
-      </div>
-      <div class="cp-msg">
-        <div class="cp-av"><img src="Assets/User%20avatar.png" alt=""></div>
-        <div><div class="cp-user">labubunation</div><div class="cp-text gfx">Happy Friday!!!</div></div>
-      </div>
-      <div class="cp-msg">
-        <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
-        <div><div class="cp-user">gowee</div><div class="cp-text" style="color:#999">Hey friends!</div></div>
-      </div>
-    </div>
-    <div class="bs-title">Live Chat effect is<br>online! 7 days access!</div>
-    <div class="bs-desc">Stand out in the live chat with a special effect on your messages. Limited-time access — expires 7 days after purchase.</div>
-    <button class="bs-btn" id="browseBtn">Browse now</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
      SCREEN 2: EFFECT PREVIEW
      ═══════════════════════════════════════ -->
 <div class="scr" id="scrEP" style="display:flex;flex-direction:column">
@@ -666,25 +683,58 @@ html,body{
   </div>
 
   <div class="echat" id="epChat">
-    <div class="em"><div class="em-u">friend</div><div class="em-t muted">yay! 🥳🥳🥳</div></div>
+    <div class="em muted"><div class="em-u">friend</div><div class="em-t white">yay! 🥳🥳🥳</div></div>
     <div class="em" id="epMsgWrap">
       <div class="em-u">labubunation</div>
       <div class="em-t grad" id="epMsg">Happy Friday!!!</div>
     </div>
-    <div class="em"><div class="em-u">friend</div><div class="em-t muted">Hey friends!</div></div>
+    <div class="em muted"><div class="em-u">friend</div><div class="em-t white">Hey friends!</div></div>
   </div>
 
   <div class="ebot">
     <div class="etabs" id="epTabs">
-      <button class="etab on" data-e="gradient">Gradient</button>
+      <button class="etab on" data-e="gradient"><span class="etab-grad">Gradient</span></button>
       <button class="etab it" data-e="outline">Outline</button>
-      <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
-      <div class="etab-sw grn"></div>
-      <div class="etab-sw pnk"></div>
+      <button class="etab" data-e="dynamic">Dynamic<span class="etab-sm"> font</span></button>
+      <div class="etab-sw">Hahaha</div>
+      <button class="etab" data-e="dynamic2">Dynamic<span class="etab-sm"> font</span></button>
     </div>
     <div style="height:20px"></div>
     <div class="edisc">Once you confirm, the purchase cannot be canceled</div>
     <button class="ebuy" id="buyBtn">Buy for&nbsp;<img src="Assets/Gem%20icon.png" alt="">&nbsp;400 · 7-day access</button>
+  </div>
+  <div class="ov" id="ov"></div>
+  <div class="bs" id="bsheet">
+    <div class="bs-handle"></div>
+    <div class="bs-body">
+      <div class="cp-card">
+        <div class="cp-card-bg"></div>
+        <div class="cp-thread">
+          <div class="cp-msg dim cp-msg-top">
+            <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
+            <div><div class="cp-user">andy</div><div class="cp-text">yay! 🥳🥳🥳</div></div>
+          </div>
+          <div class="cp-msg-mid">
+            <div class="cp-highlight"></div>
+            <div class="cp-msg">
+              <div class="cp-av"><img src="Assets/User%20avatar.png" alt=""></div>
+              <div><div class="cp-user">labubunation</div><div class="cp-text gfx">Happy Friday!!!</div></div>
+            </div>
+          </div>
+          <div class="cp-msg dim cp-msg-bot">
+            <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
+            <div><div class="cp-user">gowee</div><div class="cp-text">Hey friends!</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bs-texts">
+        <div class="bs-title">Live Chat effect is online! 7 days access!</div>
+        <div class="bs-desc">Stand out in the live chat with a special effect on your messages. Limited-time access — expires 7 days after purchase.</div>
+      </div>
+    </div>
+    <div class="bs-tray">
+      <button class="bs-btn" id="browseBtn">Browse now</button>
+    </div>
   </div>
 </div>
 
@@ -785,12 +835,19 @@ function go(scr){
 function openSheet(){$('#ov').classList.add('on');$('#bsheet').classList.add('on');$('#sbar').className='sbar light'}
 function closeSheet(){$('#ov').classList.remove('on');$('#bsheet').classList.remove('on');$('#sbar').className='sbar dark'}
 
-$('#ceBanner').onclick=openSheet;
+let sheetShown=false;
+$('#ceBanner').onclick=()=>{
+  go(scrEP);
+  if(!sheetShown){
+    sheetShown=true;
+    setTimeout(()=>openSheet(),400);
+  }
+};
 $('#ov').onclick=closeSheet;
-$('#browseBtn').onclick=()=>{closeSheet();setTimeout(()=>go(scrEP),250)};
+$('#browseBtn').onclick=()=>closeSheet();
 
 /* Navigation */
-$('#epBack').onclick=()=>go(scrGS);
+$('#epBack').onclick=()=>{closeSheet();go(scrGS)};
 $('#tsBack').onclick=()=>go(scrEP);
 $('#doneKey').onclick=()=>go(scrEP);
 
