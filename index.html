@@ -427,13 +427,14 @@ html,body{
   background:linear-gradient(90deg,#a3fff6,#f9ff8f);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
+.etabs-wrap{position:relative;z-index:2}
 .etab-indicator{
-  position:absolute;height:48px;border-radius:999px;
+  position:absolute;top:50%;left:50%;
+  height:48px;border-radius:999px;
   background:rgba(255,255,255,0.2);
-  transition:left .3s cubic-bezier(.32,.72,0,1),width .3s cubic-bezier(.32,.72,0,1);
-  z-index:0;pointer-events:none;top:0;
+  transition:width .25s cubic-bezier(.32,.72,0,1),transform .25s cubic-bezier(.32,.72,0,1);
+  pointer-events:none;z-index:0;
 }
-.etab,.etab-sw{position:relative;z-index:1}
 .etab.it{font-weight:760;font-variation-settings:'wdth' 132;font-stretch:expanded}
 .etab-sm{font-size:8px;font-weight:600}
 .etab-sw{
@@ -702,13 +703,15 @@ html,body{
   </div>
 
   <div class="ebot">
-    <div class="etabs" id="epTabs" style="position:relative">
+    <div class="etabs-wrap">
       <div class="etab-indicator" id="epIndicator"></div>
-      <button class="etab on" data-e="gradient"><span class="etab-grad">Gradient</span></button>
-      <button class="etab it" data-e="outline">Outline</button>
-      <button class="etab" data-e="dynamic">Dynamic<span class="etab-sm"> font</span></button>
-      <div class="etab-sw">Hahaha</div>
-      <button class="etab" data-e="dynamic2">Dynamic<span class="etab-sm"> font</span></button>
+      <div class="etabs" id="epTabs">
+        <button class="etab on" data-e="gradient"><span class="etab-grad">Gradient</span></button>
+        <button class="etab it" data-e="outline">Outline</button>
+        <button class="etab" data-e="dynamic">Dynamic<span class="etab-sm"> font</span></button>
+        <div class="etab-sw">Hahaha</div>
+        <button class="etab" data-e="dynamic2">Dynamic<span class="etab-sm"> font</span></button>
+      </div>
     </div>
     <div style="height:20px"></div>
     <div class="edisc">Once you confirm, the purchase cannot be canceled</div>
@@ -763,11 +766,13 @@ html,body{
   </div>
 
   <div class="ebot">
-    <div class="etabs" id="ppTabs" style="position:relative">
+    <div class="etabs-wrap">
       <div class="etab-indicator" id="ppIndicator"></div>
-      <button class="etab on" data-e="gradient">Gradient</button>
-      <button class="etab it" data-e="outline">Outline</button>
-      <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
+      <div class="etabs" id="ppTabs">
+        <button class="etab on" data-e="gradient">Gradient</button>
+        <button class="etab it" data-e="outline">Outline</button>
+        <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
+      </div>
     </div>
     <div style="height:12px"></div>
     <div class="eexp">Expires: <span>7 days</span></div>
@@ -866,13 +871,14 @@ $('#doneKey').onclick=()=>go(scrEP);
 
 /* Tab switching + snap-to-center */
 function moveIndicator(tab,animate){
-  const container=tab.closest('.etabs');
-  if(!container)return;
-  const indicator=container.querySelector('.etab-indicator');
+  const wrap=tab.closest('.etabs').parentElement;
+  if(!wrap)return;
+  const indicator=wrap.querySelector('.etab-indicator');
   if(!indicator)return;
+  const w=tab.offsetWidth;
   if(!animate)indicator.style.transition='none';
-  indicator.style.left=tab.offsetLeft+'px';
-  indicator.style.width=tab.offsetWidth+'px';
+  indicator.style.width=w+'px';
+  indicator.style.transform='translate(-50%,-50%)';
   if(!animate)requestAnimationFrame(()=>indicator.style.transition='');
 }
 
@@ -935,6 +941,11 @@ $$('.etabs').forEach(container=>{
     },150);
   },{passive:true});
 });
+setTimeout(()=>{
+  $$('.etab-indicator').forEach(ind=>{
+    ind.style.transform='translate(-50%,-50%)';
+  });
+},50);
 
 document.addEventListener('click',e=>{
   const t=e.target.closest('.etab[data-e]');
