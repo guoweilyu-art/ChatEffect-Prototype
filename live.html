@@ -159,19 +159,23 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 .chat-sidebar{
   position:absolute;bottom:198px;left:0;right:0;z-index:10;
   display:flex;align-items:flex-end;
-  padding:0 6px 0 12px;
+  padding:0 6px 0 16px;
 }
 /* Chat messages */
 .chat-area{
   flex:1;min-width:0;
   display:flex;flex-direction:column;gap:8px;
+  justify-content:flex-end;
+  max-height:220px;overflow:hidden;
 }
 .chat-msg{display:flex;align-items:flex-start;gap:8px}
-.chat-av{width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.chat-av{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-top:2px}
 .chat-av img{width:100%;height:100%;object-fit:cover}
-.chat-body{display:flex;flex-direction:column}
-.chat-user{font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);line-height:18px;letter-spacing:-0.08px}
-.chat-text{font-size:13px;font-weight:400;color:#fff;line-height:18px;letter-spacing:-0.08px}
+.chat-body{display:flex;flex-direction:column;flex:1;min-width:0}
+.chat-user{font-size:14px;font-weight:400;color:#d2d2d2;line-height:19px;letter-spacing:-0.15px;
+  height:18px;overflow:hidden;text-shadow:0 1px 1px rgba(0,0,0,0.25)}
+.chat-text{font-size:13px;font-weight:600;color:#fff;line-height:18px;letter-spacing:-0.08px;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25)}
 
 /* Chat column */
 .chat-col{
@@ -409,6 +413,53 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 <div class="hind" style="background:rgba(255,255,255,0.3)"></div>
 
 </div>
+
+<script>
+const chatArea=document.querySelector('.chat-area');
+const avatars=['Assets/chat-avatar1.png','Assets/chat-avatar2.png','Assets/chat-avatar3.png','Assets/winner-avatar.png','Assets/streamer-avatar-32.png'];
+const users=['somedude','lilbawler','notstarr','kellykim','bigfan99','sneakerhead','popmart_lover','chill_vibes','hype_beast','lucky_duck'];
+const messages=[
+  'lets gooo 🔥','omg this is sick','take my money 💰','need this so bad',
+  'first time here!','wow amazing','how much??','🙌🙌🙌',
+  'this is fire','love this show!','wait for me!','❤️❤️❤️',
+  'yooo','haha nice','ship to UK?','so cool!',
+  'been waiting all week','W show','lets get it!','🎉🎉',
+  'add to cart!','grail alert 🚨','insane collection','💪💪💪',
+  'who got the last one?','next item pls','i need this','bruh 😭',
+  'GL everyone','happy friday!','🤞🤞🤞','sheeeesh'
+];
+
+function addMessage(){
+  const avatar=avatars[Math.floor(Math.random()*avatars.length)];
+  const user=users[Math.floor(Math.random()*users.length)];
+  const text=messages[Math.floor(Math.random()*messages.length)];
+
+  const msg=document.createElement('div');
+  msg.className='chat-msg';
+  msg.style.opacity='0';msg.style.transform='translateY(10px)';
+  msg.style.transition='opacity .3s ease-out,transform .3s ease-out';
+  msg.innerHTML=`
+    <div class="chat-av"><img src="${avatar}" alt=""></div>
+    <div class="chat-body">
+      <div class="chat-user">${user}</div>
+      <div class="chat-text">${text}</div>
+    </div>`;
+
+  chatArea.appendChild(msg);
+  requestAnimationFrame(()=>{msg.style.opacity='1';msg.style.transform='translateY(0)'});
+
+  while(chatArea.querySelectorAll('.chat-msg').length>5){
+    chatArea.querySelector('.chat-msg').remove();
+  }
+  if(chatArea.scrollHeight>chatArea.clientHeight){
+    chatArea.style.webkitMaskImage='linear-gradient(to bottom,transparent 0%,transparent 8%,black 18%)';
+    chatArea.style.maskImage='linear-gradient(to bottom,transparent 0%,transparent 8%,black 18%)';
+  }
+}
+
+setInterval(addMessage,1500+Math.random()*2000);
+setTimeout(()=>setInterval(addMessage,2000+Math.random()*3000),800);
+</script>
 
 </body>
 </html>
