@@ -266,7 +266,8 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 /* Keyboard mode */
 .phone.kb-mode .sidebar{display:none}
 .phone.kb-mode .purchase-bar{display:none}
-.phone.kb-mode .chat-sidebar{bottom:330px;right:0;padding-right:16px;padding-bottom:0}
+.phone.kb-mode .chat-sidebar{bottom:330px;right:0;padding-right:16px;padding-bottom:0;transition:bottom .3s ease-in-out}
+.phone.kb-mode.picker-open .chat-sidebar{bottom:374px}
 .phone.kb-mode .chat-col{margin-right:0}
 .phone.kb-mode .input-bar{display:none}
 .live-kb{
@@ -293,6 +294,23 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   font-size:14px;font-weight:600;line-height:19px;letter-spacing:-0.15px;
 }
+.live-input-tag.outl-tag{
+  font-weight:760;font-stretch:expanded;font-variation-settings:'wdth' 132;
+  color:#fff;font-size:13px;
+  -webkit-text-stroke:2px transparent;paint-order:stroke fill;
+  position:relative;
+}
+.live-input-tag.outl-tag::before{
+  content:'Outline';position:absolute;
+  font-weight:inherit;font-size:inherit;font-variation-settings:inherit;font-stretch:inherit;
+  -webkit-text-fill-color:transparent;-webkit-text-stroke:2px transparent;
+  background:linear-gradient(180deg,#9CE3FF,#688CFF);
+  -webkit-background-clip:text;background-clip:text;z-index:-1;
+}
+.live-input-tag.dyn-tag{font-size:14px;font-weight:600;color:#fff}
+.live-input-tag.dyn-tag .dyn-sm{font-size:8px}
+.live-input-tag.pixel-tag{padding:0 6px}
+.live-input-tag.pixel-tag img{height:14px;width:auto}
 .live-input-field{
   flex:1;height:28px;background:transparent;border:none;outline:none;
   font-size:14px;color:#fff;font-family:inherit;
@@ -309,6 +327,48 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 }
 .live-send-btn.visible{opacity:1;pointer-events:auto}
 .live-send-btn img{width:20px;height:20px}
+
+/* Style picker */
+.style-picker{
+  display:none;align-items:center;gap:8px;
+  padding:8px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.style-picker::-webkit-scrollbar{display:none}
+.style-picker.open{display:flex}
+.sp-add{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  border:none;background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.sp-opt{
+  padding:6px 12px;border-radius:999px;flex-shrink:0;
+  font-size:13px;font-weight:600;color:#fff;cursor:pointer;
+  white-space:nowrap;border:none;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.sp-opt.active{background:rgba(255,255,255,0.25)}
+.sp-opt.sp-grad span{
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.sp-opt.sp-outl{
+  font-weight:760;font-variation-settings:'wdth' 132;font-stretch:expanded;
+  -webkit-text-stroke:1.5px transparent;paint-order:stroke fill;position:relative;
+}
+.sp-opt.sp-outl::before{
+  content:'Outline';position:absolute;
+  font-weight:inherit;font-size:inherit;font-variation-settings:inherit;font-stretch:inherit;
+  -webkit-text-fill-color:transparent;-webkit-text-stroke:2px transparent;
+  background:linear-gradient(180deg,#9CE3FF,#688CFF);
+  -webkit-background-clip:text;background-clip:text;z-index:-1;
+}
+.sp-opt.sp-dyn .sp-sm{font-size:8px}
+.sp-opt.sp-pixel{padding:6px 8px}
+.sp-opt.sp-pixel img{height:17px;width:auto}
 
 /* Home indicator */
 .hind{
@@ -476,9 +536,16 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 
 <!-- Live keyboard -->
 <div class="live-kb">
+  <div class="style-picker" id="stylePicker">
+    <button class="sp-add">+</button>
+    <button class="sp-opt sp-grad active" data-style="gradient"><span>Gradient</span></button>
+    <button class="sp-opt sp-outl" data-style="outline">Outline</button>
+    <button class="sp-opt sp-dyn" data-style="dynamic">Dynamic<span class="sp-sm"> font</span></button>
+    <button class="sp-opt sp-pixel" data-style="pixel"><img src="Assets/Hahaha.svg" alt=""></button>
+  </div>
   <div class="live-input-wrap">
     <div class="live-input-left">
-      <div class="live-input-tag grad-tag"><span>Gradient</span></div>
+      <div class="live-input-tag grad-tag" id="liveTag"><span>Gradient</span></div>
       <input class="live-input-field" id="liveInput" type="text" placeholder="Say something...">
     </div>
     <button class="live-send-btn" id="liveSendBtn"><img src="Assets/icon-send.svg" alt=""></button>
@@ -572,6 +639,12 @@ inputField.addEventListener('click',()=>{
 
 liveInputField.addEventListener('input',updateSendBtn);
 
+function getStyleCSS(){
+  if(liveStyle==='gradient')return'background:linear-gradient(90deg,#a3fff6,#f9ff8f);-webkit-background-clip:text;-webkit-text-fill-color:transparent';
+  if(liveStyle==='outline')return'color:#fff;font-weight:760;font-stretch:expanded;-webkit-text-stroke:2px transparent;paint-order:stroke fill;background:linear-gradient(180deg,#9CE3FF,#688CFF);-webkit-background-clip:text';
+  if(liveStyle==='dynamic')return'color:#fff';
+  return'color:#fff';
+}
 function sendUserMessage(){
   const text=liveInputField.value.trim();
   if(!text)return;
@@ -583,7 +656,7 @@ function sendUserMessage(){
     <div class="chat-av"><img src="Assets/User%20avatar.png" alt=""></div>
     <div class="chat-body">
       <div class="chat-user">labubunation</div>
-      <div class="chat-text" style="background:linear-gradient(90deg,#a3fff6,#f9ff8f);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${text}</div>
+      <div class="chat-text" style="${getStyleCSS()}">${text}</div>
     </div>`;
   chatArea.appendChild(msg);
   requestAnimationFrame(()=>{msg.style.opacity='1';msg.style.transform='translateY(0)'});
@@ -600,7 +673,8 @@ function sendMessage(){
   sendUserMessage();
   liveInputField.value='';
   updateSendBtn();
-  phone.classList.remove('kb-mode');
+  stylePicker.classList.remove('open');
+  phone.classList.remove('picker-open','kb-mode');
 }
 
 liveSendBtn.addEventListener('click',e=>{
@@ -625,12 +699,52 @@ document.querySelector('.lk-send').addEventListener('click',e=>{
   sendMessage();
 });
 
+/* Style picker */
+const stylePicker=document.getElementById('stylePicker');
+const liveTag=document.getElementById('liveTag');
+let liveStyle='gradient';
+
+const styleLabels={gradient:'Gradient',outline:'Outline',dynamic:'Dynamic font',pixel:'Hahaha'};
+
+document.getElementById('liveTag').addEventListener('click',e=>{
+  e.stopPropagation();
+  const isOpen=stylePicker.classList.toggle('open');
+  phone.classList.toggle('picker-open',isOpen);
+});
+
+document.querySelectorAll('.sp-opt').forEach(opt=>{
+  opt.addEventListener('click',e=>{
+    e.stopPropagation();
+    liveStyle=opt.dataset.style;
+    document.querySelectorAll('.sp-opt').forEach(o=>o.classList.remove('active'));
+    opt.classList.add('active');
+    liveTag.className='live-input-tag';
+    liveTag.removeAttribute('style');
+    if(liveStyle==='gradient'){
+      liveTag.classList.add('grad-tag');
+      liveTag.innerHTML='<span>Gradient</span>';
+    }else if(liveStyle==='outline'){
+      liveTag.classList.add('outl-tag');
+      liveTag.innerHTML='Outline';
+    }else if(liveStyle==='dynamic'){
+      liveTag.classList.add('dyn-tag');
+      liveTag.innerHTML='Dynamic<span class="dyn-sm"> font</span>';
+    }else{
+      liveTag.classList.add('pixel-tag');
+      liveTag.innerHTML='<img src="Assets/Hahaha.svg" alt="">';
+    }
+    stylePicker.classList.remove('open');
+    phone.classList.remove('picker-open');
+  });
+});
+
 document.addEventListener('click',e=>{
   if(!phone.classList.contains('kb-mode'))return;
   if(e.target.closest('.live-kb')||e.target.closest('.input-field'))return;
   liveInputField.value='';
   updateSendBtn();
-  phone.classList.remove('kb-mode');
+  stylePicker.classList.remove('open');
+  phone.classList.remove('picker-open','kb-mode');
 });
 </script>
 
