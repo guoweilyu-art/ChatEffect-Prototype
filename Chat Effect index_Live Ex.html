@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chat Effect – Prototype</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  font-family:system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background:#1a1a1a;
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ═══════ Phone ═══════ */
+.phone{
+  width:393px;height:852px;background:#fff;
+  border-radius:47px;overflow:hidden;position:relative;
+  box-shadow:0 0 0 11px #111,0 0 0 13px #333,0 40px 100px rgba(0,0,0,.5);
+}
+
+/* ═══════ Status Bar ═══════ */
+.sbar{
+  position:absolute;top:0;left:0;right:0;z-index:500;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 30px 0;height:54px;
+  font-size:16px;font-weight:600;letter-spacing:-.3px;
+  pointer-events:none;
+}
+.sbar.dark{color:#000}.sbar.light{color:#fff}
+.sbar-r{display:flex;gap:5px;align-items:center}
+
+/* ═══════ Home Indicator ═══════ */
+.hind{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:100px;z-index:500;
+}
+.hind.dark{background:#000}.hind.light{background:rgba(255,255,255,.6)}
+
+/* ═══════ Screens ═══════ */
+.scr{
+  position:absolute;inset:0;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .3s ease;
+  transform:translateX(30px);
+}
+.scr.on{opacity:1;pointer-events:auto;transform:none}
+
+/* ═══════════════════════════════════════
+   GEM STORE
+   ═══════════════════════════════════════ */
+.gs{background:#fff;overflow:hidden;padding-top:54px;display:flex;flex-direction:column}
+
+/* Fixed header */
+.gs-header{flex-shrink:0;background:#fff;position:relative;z-index:10}
+
+/* Nav */
+.gs-nav{display:flex;align-items:center;padding:8px 16px 4px}
+.gs-back{
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;flex-shrink:0;
+}
+.gs-back svg{width:24px;height:24px}
+.gs-nav-badges{display:flex;gap:6px;margin-left:auto}
+.badge{
+  display:flex;align-items:center;gap:4px;
+  background:#F5F5F5;border-radius:100px;
+  padding:6px 12px 6px 6px;
+  font-size:14px;line-height:22px;letter-spacing:-0.2px;font-weight:700;color:#111;
+}
+.badge img{width:24px;height:24px;border-radius:50%}
+
+/* Title — text-650 bold */
+.gs-title{
+  font-size:20px;line-height:28px;letter-spacing:0.1px;font-weight:700;
+  padding:12px 16px 10px;color:#111;
+}
+
+/* Tabs — text-400 semibold */
+.gs-tabs{
+  display:flex;padding:0 16px;
+  border-bottom:1px solid #e5e5e5;
+}
+.gs-tab{
+  padding:10px 0;margin-right:20px;
+  font-size:16px;line-height:21px;letter-spacing:-0.31px;
+  font-weight:600;color:var(--tabs-inactive, #AAAAAA);
+  cursor:pointer;border-bottom:2.5px solid transparent;
+  margin-bottom:-1px;white-space:nowrap;
+}
+.gs-tab.on{color:#111;font-weight:700;border-bottom-color:#111}
+
+/* Body — scrollable area */
+.gs-body{padding:16px 16px 50px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+.gs-body::-webkit-scrollbar{display:none}
+
+/* Section Header — text-500 bold */
+.sh{display:flex;justify-content:space-between;align-items:center}
+.sh-t{font-size:16px;line-height:24px;letter-spacing:-0.41px;font-weight:700;color:#111}
+.sh-a{
+  font-size:14px;line-height:22px;letter-spacing:-0.2px;font-weight:600;color:#111;
+  cursor:pointer;display:flex;align-items:center;gap:2px;
+}
+.sh-a svg{width:24px;height:24px}
+.sh-sub{font-size:13px;line-height:18px;letter-spacing:-0.11px;color:#999;margin:3px 0 12px}
+
+/* ── Jumbotron Card ── */
+.jcard{
+  border-radius:16px;overflow:hidden;
+  height:316px;position:relative;
+  background:url('Assets/Background%20image.png') center/cover no-repeat;
+  margin-bottom:14px;
+}
+.jcard-img{
+  position:absolute;top:0;left:0;
+  width:100%;height:auto;
+  pointer-events:none;
+}
+.jcard-bot{
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding:14px 16px 16px;
+}
+.jcard-price{
+  display:flex;align-items:center;gap:4px;
+  font-size:13px;line-height:18px;letter-spacing:-0.11px;
+  font-weight:600;color:#fffff4;margin-bottom:3px;
+}
+.jcard-price img{width:20px;height:20px}
+.jcard-name{font-size:18px;line-height:23px;letter-spacing:-0.59px;font-weight:700;color:#fffff4}
+/* "View" button — design system primary, yellow */
+.jcard-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:108px;height:44px;border-radius:999px;
+  font-size:16px;line-height:24px;letter-spacing:-0.41px;font-weight:600;
+  background:#ffe414;color:#000;border:1px solid transparent;
+  cursor:pointer;
+}
+
+/* Jumbotron thumbnails: scrollable, 8px gaps, 1:1 */
+.jthumbs{
+  display:flex;gap:8px;margin-bottom:24px;
+  overflow-x:scroll;-webkit-overflow-scrolling:touch;
+  padding:0 16px;margin-left:-16px;margin-right:-16px;
+}
+.jthumbs::-webkit-scrollbar{display:none}
+.jthumb{
+  width:calc((361px - 24px) / 4);min-width:calc((361px - 24px) / 4);
+  aspect-ratio:1/1;
+  border-radius:16px;
+  background:#F5F5F5;overflow:visible;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;flex-shrink:0;
+}
+.jthumb.selected{background:#1c1c1c}
+.jthumb img{width:70%;height:70%;object-fit:contain}
+.jthumb-gem{
+  position:absolute;bottom:8px;left:8px;
+  width:20px!important;height:20px!important;
+}
+.jthumb.selected .jthumb-gem{display:none}
+
+/* ── Chat Effect ── */
+.ce-hdr{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.beta-tag{
+  background:#ffe414;font-size:12px;line-height:12px;font-weight:600;
+  padding:4px 10px;border-radius:100px;color:#000;
+}
+.ce-banner{
+  border-radius:16px;overflow:hidden;
+  height:186px;position:relative;cursor:pointer;
+  isolation:isolate;-webkit-mask-image:-webkit-radial-gradient(white,black);
+}
+.ce-banner-bg{
+  position:absolute;inset:0;
+  background:url('Assets/Background%20image.png') center/cover no-repeat;
+}
+.ce-banner-bg::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,0,0,0.8);
+}
+.ce-banner-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+}
+.ce-main{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:36px;line-height:43px;letter-spacing:0.37px;
+  font-weight:700;font-style:italic;white-space:nowrap;
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.ce-thank{
+  position:absolute;left:226px;top:25px;
+}
+.ce-hey{
+  position:absolute;left:-27px;top:130px;
+  color:#fff;opacity:0.36;white-space:nowrap;
+  font-weight:760;font-size:44px;line-height:1.2;letter-spacing:-0.08px;
+  font-variation-settings:'wdth' 132;font-stretch:expanded;
+}
+.ce-hearts{
+  position:absolute;left:30px;top:18px;
+  width:73px;height:37px;opacity:0.12;
+  font-size:24px;
+}
+.ce-pixel{
+  position:absolute;left:calc(50% + 70px);top:calc(50% + 35px);
+  width:122px;height:41px;overflow:hidden;opacity:0.24;
+}
+.ce-pixel-bg{position:absolute;background:#38bc0f}
+.ce-pixel-bg1{inset:20% 3% 29% 10%}
+.ce-pixel-bg2{inset:10% 7% 15% 13%}
+.ce-pixel-txt{
+  position:absolute;left:22%;right:8%;top:50%;transform:translateY(-50%);
+  color:#fff;font-size:16px;line-height:21px;letter-spacing:-0.31px;font-weight:600;
+  white-space:nowrap;
+}
+.ce-pixel-w{position:absolute;background:#fff}
+.ce-pw1{inset:20% 90% 27% 7%}
+.ce-pw2{inset:74% 87% 18% 10%}
+.ce-pw3{inset:80% 7% 10% 13%}
+.ce-pw4{inset:56% 82% 9% 3%}
+.ce-pw5{inset:10% 3% 80% 93%}
+.ce-pw6{inset:0 7% 90% 13%}
+.ce-pw7{inset:10% 87% 80% 10%}
+.ce-pw8{inset:20% 0 29% 97%}
+
+/* ── Reaction ── */
+.r-sec{margin-top:24px}
+.r-grid{display:flex;gap:10px;overflow-x:scroll;padding:12px 16px 4px 16px;margin-left:-16px;margin-right:-16px;-webkit-overflow-scrolling:touch}
+.r-grid::-webkit-scrollbar{display:none}
+.r-card{
+  width:140px;min-width:140px;height:186px;flex-shrink:0;
+  background:#F7F7F7;border-radius:16px;
+  padding:18px 14px 14px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.r-card img{width:96px;height:96px;object-fit:contain;margin-bottom:8px}
+.r-name{font-size:13px;line-height:18px;letter-spacing:-0.11px;font-weight:600;color:#111;margin-bottom:8px}
+.r-price{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:13px;line-height:18px;letter-spacing:-0.11px;font-weight:700;color:#111;
+}
+.r-price img{width:18px;height:18px;vertical-align:middle;flex-shrink:0}
+.r-price .old{text-decoration:line-through;color:#bbb;font-weight:400;font-size:12px}
+
+/* ── Coupon ── */
+.c-sec{margin-top:24px}
+.c-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.c-info-btn{
+  width:24px;height:24px;border-radius:50%;border:none;
+  display:flex;align-items:center;justify-content:center;
+  color:#999;cursor:pointer;background:none;padding:0;
+}
+.c-info-btn svg{width:24px;height:24px}
+.c-list{display:flex;flex-direction:column}
+.c-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:16px 0;border-bottom:1px solid rgba(0,0,0,0.05);
+}
+.c-item:first-child{padding-top:0}
+.c-item:last-child{border-bottom:none;padding-bottom:0}
+.c-item-img{
+  width:140px;height:140px;flex-shrink:0;border-radius:8px;
+  background:url('Assets/Coupon%20background.png') center/cover no-repeat;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.c-price-label{
+  font-size:48px;font-weight:900;color:#1c1c1c;line-height:1;
+}
+.c-item-body{
+  flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;
+}
+.c-title-meta{display:flex;flex-direction:column;gap:2px}
+.c-name{font-size:14px;line-height:19px;letter-spacing:-0.15px;font-weight:600;color:#000}
+.c-qty{font-size:13px;line-height:18px;letter-spacing:-0.08px;font-weight:400;color:#7f7f7f}
+.c-cprice{display:flex;align-items:center;gap:4px;font-size:14px;line-height:19px;letter-spacing:-0.15px;font-weight:600;color:#1c1c1c}
+.c-cprice img{width:16px;height:16px}
+.c-cprice .old{text-decoration:line-through;color:#7f7f7f;font-weight:600;font-size:16px;line-height:21px;letter-spacing:-0.31px}
+
+/* ═══════════════════════════════════════
+   INTRO BOTTOM SHEET
+   ═══════════════════════════════════════ */
+.ov{
+  position:absolute;inset:0;z-index:50;
+  background:rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.ov.on{opacity:1;pointer-events:auto}
+
+.bs{
+  position:absolute;bottom:0;left:0;right:0;z-index:51;
+  background:#fff;border-radius:20px 20px 0 0;
+  transform:translateY(100%);
+  transition:transform .42s cubic-bezier(.32,.72,0,1);
+  padding-bottom:34px;
+}
+.bs.on{transform:translateY(0)}
+.bs-handle{width:36px;height:5px;border-radius:100px;background:#DDD;margin:10px auto 6px}
+.bs-body{padding:4px 24px 0}
+
+.cp-card{
+  background:#2C2C2E;border-radius:18px;
+  padding:22px 18px;margin-bottom:22px;
+}
+.cp-msg{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start}
+.cp-msg:last-child{margin-bottom:0}
+.cp-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.cp-av img{width:100%;height:100%;object-fit:cover}
+.cp-user{font-size:13px;color:#999;margin-bottom:2px}
+.cp-text{font-size:15px;color:#fff;line-height:1.35}
+.cp-text.gfx{
+  background:linear-gradient(90deg,#56D364,#22C55E);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;font-weight:600;font-size:16px;
+}
+
+.bs-title{
+  font-size:24px;line-height:30px;letter-spacing:0.09px;font-weight:700;
+  text-align:center;color:#111;margin-bottom:10px;
+}
+.bs-desc{
+  font-size:14px;line-height:22px;letter-spacing:-0.2px;
+  color:#999;text-align:center;margin-bottom:22px;
+}
+/* "Browse now" — design system secondary button, full-width, lg */
+.bs-btn{
+  width:100%;display:flex;align-items:center;justify-content:center;
+  height:48px;background:#1c1c1c;color:#fff;
+  border:1px solid transparent;border-radius:999px;
+  font-size:13px;line-height:18px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+}
+
+/* ═══════════════════════════════════════
+   EFFECT SCREENS (shared)
+   ═══════════════════════════════════════ */
+.dark-bg{
+  position:absolute;inset:0;
+  background:url('Assets/Background%20image.png') center/cover no-repeat;
+}
+.dark-bg::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+
+.enav{
+  display:flex;align-items:center;padding:60px 16px 8px;position:relative;z-index:2;
+}
+.enav-back{
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;
+}
+.enav-back svg{width:24px;height:24px}
+.enav-title{flex:1;text-align:center;font-size:17px;font-weight:700;color:#fff}
+.enav-gem{display:flex;align-items:center;gap:4px;font-size:15px;font-weight:700;color:#fff}
+.enav-gem img{width:24px;height:24px}
+
+/* Chat messages on dark screen */
+.echat{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:0 24px;position:relative;z-index:2;
+}
+.em{margin-bottom:10px}
+.em-u{font-size:14px;color:rgba(255,255,255,.45);margin-bottom:4px;font-weight:400}
+.em-t{font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.3px}
+.em-t.muted{color:rgba(255,255,255,.25)}
+.em-t.grad{
+  background:linear-gradient(90deg,#A8E063,#56AB2F,#22C55E);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.em-t.outl{
+  color:transparent;-webkit-text-stroke:2px #22C55E;
+  font-weight:900;font-style:italic;
+}
+.em-t.inbox{color:#fff;font-weight:700}
+.em-box{
+  border:2.5px solid #22C55E;border-radius:12px;
+  padding:6px 14px 10px;display:inline-block;position:relative;
+}
+.em-box::after{
+  content:'';position:absolute;bottom:-8px;left:-8px;
+  width:13px;height:13px;border-radius:3px;background:#22C55E;
+}
+
+/* Effect tabs */
+.etabs{
+  display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  position:relative;z-index:2;padding:0 20px;
+}
+.etabs::-webkit-scrollbar{display:none}
+.etab{
+  padding:11px 22px;border-radius:100px;
+  font-size:16px;font-weight:600;cursor:pointer;
+  white-space:nowrap;color:rgba(255,255,255,.45);
+  background:transparent;border:none;font-family:inherit;
+  transition:all .2s ease;flex-shrink:0;
+}
+.etab.on{background:rgba(255,255,255,.14);color:#fff}
+.etab.it{font-style:italic;font-weight:800}
+.etab-sm{font-size:12px;font-weight:400}
+.etab-sw{
+  width:44px;height:44px;border-radius:100px;cursor:pointer;flex-shrink:0;
+}
+.etab-sw.grn{background:linear-gradient(135deg,#22C55E,#16A34A)}
+.etab-sw.pnk{background:linear-gradient(135deg,#EC4899,#DB2777)}
+
+/* Bottom controls */
+.ebot{padding:20px 20px 42px;position:relative;z-index:2}
+.edisc{font-size:13px;color:rgba(255,255,255,.35);text-align:center;margin-bottom:12px}
+/* "Buy" — design system hollow button, full-width, lg */
+.ebuy{
+  width:100%;height:48px;background:#fff;color:#000;
+  border:1px solid transparent;border-radius:999px;
+  font-size:13px;line-height:18px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.ebuy img{width:22px;height:22px}
+.eexp{font-size:14px;color:rgba(255,255,255,.35);text-align:center;margin-top:14px}
+.eexp span{color:#22C55E}
+
+/* ═══════════════════════════════════════
+   TYPING SCREEN
+   ═══════════════════════════════════════ */
+.ts-area{
+  position:absolute;top:50%;left:24px;right:24px;
+  transform:translateY(-100%);z-index:2;
+}
+.ts-ph{
+  position:absolute;pointer-events:none;
+  font-size:34px;font-weight:700;color:rgba(255,255,255,.25);
+  letter-spacing:-.5px;
+}
+.ts-inp{
+  font-size:34px;font-weight:700;line-height:1.3;
+  outline:none;min-height:44px;
+  caret-color:rgba(255,255,255,.7);
+  letter-spacing:-.5px;word-break:break-word;
+}
+.ts-inp.g-s{
+  background:linear-gradient(90deg,#A8E063,#56AB2F,#22C55E);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.ts-inp.o-s{color:transparent;-webkit-text-stroke:2px #22C55E;font-weight:900}
+.ts-inp.d-s{color:#22C55E}
+
+.ts-tabs{
+  position:absolute;z-index:10;left:0;right:0;
+  display:flex;gap:2px;justify-content:center;padding:0 20px;
+}
+
+/* iOS Keyboard */
+.kb{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  background:#D1D4DB;padding:10px 3px 0;
+}
+.kr{display:flex;justify-content:center;gap:6px;margin-bottom:10px;padding:0 3px}
+.kr:last-child{margin-bottom:0;padding-bottom:20px}
+.k{
+  background:#FCFCFE;border-radius:5px;min-width:34px;height:43px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:400;cursor:pointer;
+  box-shadow:0 1px 0 rgba(0,0,0,.3);user-select:none;
+  font-family:inherit;color:#111;
+}
+.k.sp{min-width:42px;font-size:14px;font-weight:500;background:#ACB2BC;color:#111;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.k.spc{flex:1;font-size:16px}
+.k.dn{background:#007AFF;color:#fff;min-width:74px;font-size:16px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.kb-extra{display:flex;justify-content:space-between;padding:6px 20px 8px;font-size:22px}
+
+/* ═══════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════ */
+.toast{
+  position:absolute;top:52px;left:10px;right:10px;z-index:600;
+  background:rgba(50,50,50,.97);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-radius:18px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  transform:translateY(-200%);
+  transition:transform .45s cubic-bezier(.32,.72,0,1);
+}
+.toast.show{transform:translateY(0)}
+.toast-ic{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,#34D399,#059669);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;color:#fff;flex-shrink:0;
+  letter-spacing:-.5px;
+}
+.toast-tt{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
+.toast-st{font-size:13px;color:#aaa;line-height:1.35}
+</style>
+</head>
+<body>
+
+<div class="phone" id="app">
+
+<!-- Status Bar -->
+<div class="sbar dark" id="sbar">
+  <span>9:41</span>
+  <div class="sbar-r">
+    <svg width="18" height="12" fill="currentColor"><rect x="1" y="3.5" width="2.5" height="8.5" rx=".7" opacity=".3"/><rect x="5" y="2" width="2.5" height="10" rx=".7" opacity=".5"/><rect x="9" y=".5" width="2.5" height="11.5" rx=".7" opacity=".7"/><rect x="13" y="0" width="2.5" height="12" rx=".7"/></svg>
+    <svg width="17" height="12" fill="currentColor"><path d="M8.5 2.8a9 9 0 0 0-6 2.3L.8 3.4A11 11 0 0 1 8.5.5a11 11 0 0 1 7.7 2.9l-1.7 1.7a9 9 0 0 0-6-2.3z" opacity=".35"/><path d="M8.5 5.8a6 6 0 0 0-4 1.6L2.8 5.7a8 8 0 0 1 5.7-2.2 8 8 0 0 1 5.7 2.2l-1.7 1.7a6 6 0 0 0-4-1.6z" opacity=".65"/><path d="M8.5 8.8c-.9 0-1.7.3-2.3.9L8.5 12l2.3-2.3a3.3 3.3 0 0 0-2.3-.9z"/></svg>
+    <svg width="28" height="13" fill="currentColor"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"/><rect x="25" y="4" width="2" height="5" rx="1" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.5"/></svg>
+  </div>
+</div>
+<div class="hind dark" id="hind"></div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1: GEM STORE
+     ═══════════════════════════════════════ -->
+<div class="scr gs on" id="scrGS">
+  <div class="gs-header">
+  <!-- Nav -->
+  <div class="gs-nav">
+    <button class="gs-back"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#111" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
+    <div class="gs-nav-badges">
+      <div class="badge"><img src="Assets/Whatnot%20credit%20icon.png" alt="coins">$0</div>
+      <div class="badge"><img src="Assets/Gem%20icon.png" alt="gems">123,200,200</div>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="gs-title">Earn Rewards & Unlock Perks</div>
+
+  <!-- Tabs -->
+  <div class="gs-tabs">
+    <div class="gs-tab">Referrals</div>
+    <div class="gs-tab">Challenges</div>
+    <div class="gs-tab on">Gem Store</div>
+    <div class="gs-tab">Coupons</div>
+  </div>
+  </div><!-- /gs-header -->
+
+  <!-- Scrollable body -->
+  <div class="gs-body">
+
+    <!-- Jumbotron -->
+    <div class="sh"><span class="sh-t">Jumbotron</span><span class="sh-a">View All <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M9.293 17.707a1 1 0 0 1 0-1.414L13.586 12 9.293 7.707a1 1 0 1 1 1.414-1.414L15 10.586a2 2 0 0 1 0 2.828l-4.293 4.293a1 1 0 0 1-1.414 0" clip-rule="evenodd"/></svg></span></div>
+    <div class="sh-sub">Live purchase announcements</div>
+
+    <div class="jcard">
+      <img class="jcard-img" src="Assets/Smile%20face%20preview.png" alt="">
+      <div class="jcard-bot">
+        <div>
+          <div class="jcard-price"><img src="Assets/Gem%20icon.png" alt="">12,200</div>
+          <div class="jcard-name">Cheer Cyclone</div>
+        </div>
+        <button class="jcard-btn">View</button>
+      </div>
+    </div>
+
+    <div class="jthumbs">
+      <div class="jthumb selected"><img src="Assets/smile%20face%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/crown%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/holiday%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/magic%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/smile%20face%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/crown%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/holiday%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="Assets/magic%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+    </div>
+
+    <!-- Chat Effect -->
+    <div class="ce-hdr"><span class="sh-t">Chat Effect</span><span class="beta-tag">Beta</span></div>
+    <div class="ce-banner" id="ceBanner">
+      <div class="ce-banner-bg"></div>
+      <div class="ce-hearts">💛💛💛</div>
+      <div class="ce-thank"><svg xmlns="http://www.w3.org/2000/svg" width="97" height="28" viewBox="0 0 97 28" fill="none"><g opacity="0.36" filter="url(#filter0_g_2578_107145)"><path d="M9.90234 19.2969V8.52148H6V6.61426L16.0635 6.61426V8.52148H12.1611V19.2969H9.90234ZM17.8295 19.2969V5.99902H20.018V11.1758H20.1674C20.3959 10.6602 20.7416 10.2559 21.2045 9.96289C21.6674 9.66406 22.2475 9.51465 22.9448 9.51465C23.6538 9.51465 24.2543 9.65527 24.7465 9.93652C25.2387 10.2178 25.6108 10.625 25.8627 11.1582C26.1205 11.6914 26.2495 12.3389 26.2495 13.1006V19.2969H24.0698V13.6016C24.0698 12.8574 23.9116 12.2979 23.5952 11.9229C23.2788 11.5479 22.7895 11.3604 22.1274 11.3604C21.6938 11.3604 21.3188 11.457 21.0024 11.6504C20.6918 11.8438 20.4487 12.1162 20.2729 12.4678C20.103 12.8135 20.018 13.2266 20.018 13.707V19.2969H17.8295ZM30.995 19.4551C30.3856 19.4551 29.8436 19.3379 29.369 19.1035C28.8944 18.8691 28.5194 18.5381 28.244 18.1104C27.9745 17.6768 27.8397 17.1699 27.8397 16.5898V16.5723C27.8397 15.998 27.9804 15.5059 28.2616 15.0957C28.5429 14.6855 28.953 14.3633 29.4921 14.1289C30.037 13.8945 30.6991 13.7539 31.4784 13.707L35.0292 13.4961V14.9375L31.786 15.1484C31.1766 15.1836 30.7255 15.3125 30.4325 15.5352C30.1395 15.7578 29.993 16.0654 29.993 16.458V16.4756C29.993 16.8857 30.1483 17.2051 30.4589 17.4336C30.7694 17.6621 31.1679 17.7764 31.6542 17.7764C32.0936 17.7764 32.4862 17.6885 32.8319 17.5127C33.1776 17.3369 33.4501 17.0996 33.6493 16.8008C33.8485 16.4961 33.9481 16.1533 33.9481 15.7725V12.749C33.9481 12.2686 33.7958 11.8994 33.4911 11.6416C33.1864 11.3838 32.7382 11.2549 32.1464 11.2549C31.6425 11.2549 31.2323 11.3428 30.9159 11.5186C30.5995 11.6943 30.3856 11.9404 30.2743 12.2568L30.2655 12.292H28.2001L28.2089 12.2217C28.285 11.6768 28.496 11.2021 28.8417 10.7979C29.1932 10.3936 29.6591 10.0801 30.2391 9.85742C30.8192 9.62891 31.4901 9.51465 32.2518 9.51465C33.0721 9.51465 33.7694 9.64355 34.3436 9.90137C34.9237 10.1592 35.3632 10.5283 35.662 11.0088C35.9608 11.4893 36.1102 12.0664 36.1102 12.7402V19.2969H33.9481V17.9697H33.7987C33.6229 18.2803 33.3944 18.5469 33.1132 18.7695C32.8378 18.9922 32.5214 19.1621 32.1639 19.2793C31.8065 19.3965 31.4169 19.4551 30.995 19.4551ZM38.263 19.2969V9.70801H40.4427V11.1758H40.5921C40.8206 10.6602 41.1663 10.2559 41.6292 9.96289C42.0921 9.66406 42.6722 9.51465 43.3695 9.51465C44.4417 9.51465 45.2591 9.8252 45.8216 10.4463C46.39 11.0674 46.6741 11.9492 46.6741 13.0918V19.2969H44.4857V13.5928C44.4857 12.8486 44.3275 12.292 44.0111 11.9229C43.7005 11.5479 43.2171 11.3604 42.5609 11.3604C42.1214 11.3604 41.7435 11.457 41.4271 11.6504C41.1165 11.8438 40.8734 12.1162 40.6976 12.4678C40.5277 12.8135 40.4427 13.2266 40.4427 13.707V19.2969H38.263ZM48.8797 19.2969V5.99902H51.0593V19.2969H48.8797ZM54.9089 19.2969L51.6834 14.9463L53.2918 13.6016L57.5369 19.2969H54.9089ZM50.8748 16.124L50.7957 13.6455H51.2088L54.7507 9.70801H57.282L53.0984 14.1025L52.1228 14.8496L50.8748 16.124ZM58.7355 21.1719C58.6607 21.1719 58.5826 21.1702 58.5012 21.167C58.423 21.1637 58.3465 21.1589 58.2717 21.1523V20.2197C58.3205 20.2262 58.3775 20.2295 58.4426 20.2295C58.5077 20.2327 58.5712 20.2344 58.633 20.2344C58.8837 20.2344 59.0839 20.179 59.2336 20.0684C59.3866 19.9609 59.4956 19.7868 59.5607 19.5459L59.6242 19.3018L57.715 13.96H59.0432L60.4494 18.6865L60.1174 18.1299H60.5373L60.215 18.6865L61.6213 13.96H62.9006L60.9865 19.4141C60.8335 19.8568 60.6577 20.2067 60.4592 20.4639C60.2606 20.721 60.0214 20.9033 59.7414 21.0107C59.4647 21.1182 59.1294 21.1719 58.7355 21.1719ZM65.9456 19.4043C65.415 19.4043 64.9576 19.2936 64.5735 19.0723C64.1894 18.8477 63.8932 18.5286 63.6848 18.1152C63.4798 17.7018 63.3772 17.207 63.3772 16.6309V16.6211C63.3772 16.0514 63.4814 15.5599 63.6897 15.1465C63.8981 14.7298 64.1927 14.4108 64.5735 14.1895C64.9576 13.9681 65.415 13.8574 65.9456 13.8574C66.4762 13.8574 66.9319 13.9681 67.3128 14.1895C67.6969 14.4108 67.9931 14.7282 68.2014 15.1416C68.4098 15.555 68.5139 16.0482 68.5139 16.6211V16.6309C68.5139 17.207 68.4098 17.7018 68.2014 18.1152C67.9964 18.5286 67.7018 18.8477 67.3177 19.0723C66.9368 19.2936 66.4794 19.4043 65.9456 19.4043ZM65.9456 18.418C66.2255 18.418 66.4632 18.348 66.6585 18.208C66.857 18.0648 67.0084 17.8613 67.1126 17.5977C67.2167 17.3307 67.2688 17.0101 67.2688 16.6357V16.626C67.2688 16.2484 67.2167 15.9277 67.1126 15.6641C67.0084 15.3971 66.857 15.1937 66.6585 15.0537C66.4632 14.9105 66.2255 14.8389 65.9456 14.8389C65.6656 14.8389 65.4264 14.9105 65.2278 15.0537C65.0292 15.1937 64.8779 15.3971 64.7737 15.6641C64.6695 15.9277 64.6175 16.2484 64.6175 16.626V16.6357C64.6175 17.0101 64.6695 17.3307 64.7737 17.5977C64.8779 17.8646 65.0276 18.068 65.2229 18.208C65.4215 18.348 65.6624 18.418 65.9456 18.418ZM71.4222 19.4043C71.0251 19.4043 70.6914 19.3278 70.4212 19.1748C70.1511 19.0186 69.9476 18.7923 69.8109 18.4961C69.6742 18.1966 69.6058 17.8353 69.6058 17.4121V13.96H70.8216V17.1338C70.8216 17.5472 70.903 17.8581 71.0658 18.0664C71.2285 18.2747 71.4938 18.3789 71.8617 18.3789C72.057 18.3789 72.2295 18.3496 72.3793 18.291C72.5323 18.2292 72.6592 18.1413 72.7601 18.0273C72.861 17.9134 72.9375 17.7767 72.9896 17.6172C73.0417 17.4544 73.0677 17.2721 73.0677 17.0703V13.96H74.2836V19.2969H73.0677V18.4863H72.9847C72.9033 18.6751 72.7894 18.8395 72.6429 18.9795C72.4964 19.1162 72.3207 19.222 72.1156 19.2969C71.9105 19.3685 71.6794 19.4043 71.4222 19.4043ZM76.976 15.1045L76.7739 6.60547L79.1909 6.60547L78.9887 15.1045H76.976ZM77.9868 19.5078C77.5473 19.5078 77.1957 19.3848 76.9321 19.1387C76.6684 18.8867 76.5366 18.5527 76.5366 18.1367C76.5366 17.7148 76.6684 17.3809 76.9321 17.1348C77.1957 16.8828 77.5473 16.7568 77.9868 16.7568C78.4262 16.7568 78.7778 16.8828 79.0414 17.1348C79.3051 17.3809 79.437 17.7148 79.437 18.1367C79.437 18.5527 79.3051 18.8867 79.0414 19.1387C78.7778 19.3848 78.4262 19.5078 77.9868 19.5078ZM82.618 15.1045L82.4159 6.60547H84.8329L84.6307 15.1045H82.618ZM83.6288 19.5078C83.1893 19.5078 82.8378 19.3848 82.5741 19.1387C82.3104 18.8867 82.1786 18.5527 82.1786 18.1367C82.1786 17.7148 82.3104 17.3809 82.5741 17.1348C82.8378 16.8828 83.1893 16.7568 83.6288 16.7568C84.0682 16.7568 84.4198 16.8828 84.6835 17.1348C84.9472 17.3809 85.079 17.7148 85.079 18.1367C85.079 18.5527 84.9472 18.8867 84.6835 19.1387C84.4198 19.3848 84.0682 19.5078 83.6288 19.5078ZM88.2601 15.1045L88.0579 6.60547H90.4749L90.2728 15.1045H88.2601ZM89.2708 19.5078C88.8314 19.5078 88.4798 19.3848 88.2161 19.1387C87.9525 18.8867 87.8206 18.5527 87.8206 18.1367C87.8206 17.7148 87.9525 17.3809 88.2161 17.1348C88.4798 16.8828 88.8314 16.7568 89.2708 16.7568C89.7103 16.7568 90.0618 16.8828 90.3255 17.1348C90.5892 17.3809 90.721 17.7148 90.721 18.1367C90.721 18.5527 90.5892 18.8867 90.3255 19.1387C90.0618 19.3848 89.7103 19.5078 89.2708 19.5078Z" fill="white"/></g><defs><filter id="filter0_g_2578_107145" x="0" y="0" width="96.7212" height="27.1719" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feTurbulence type="fractalNoise" baseFrequency="0.999 0.999" numOctaves="3" seed="6635"/><feDisplacementMap in="shape" scale="12" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%"/><feMerge result="effect1_texture_2578_107145"><feMergeNode in="displacedImage"/></feMerge></filter></defs></svg></div>
+      <div class="ce-main">Happy Friday!</div>
+      <div class="ce-hey">Hey!!!</div>
+      <div class="ce-pixel">
+        <div class="ce-pixel-bg ce-pixel-bg1"></div>
+        <div class="ce-pixel-bg ce-pixel-bg2"></div>
+        <div class="ce-pixel-txt">Any cards?</div>
+        <div class="ce-pixel-w ce-pw1"></div>
+        <div class="ce-pixel-w ce-pw2"></div>
+        <div class="ce-pixel-w ce-pw3"></div>
+        <div class="ce-pixel-w ce-pw4"></div>
+        <div class="ce-pixel-w ce-pw5"></div>
+        <div class="ce-pixel-w ce-pw6"></div>
+        <div class="ce-pixel-w ce-pw7"></div>
+        <div class="ce-pixel-w ce-pw8"></div>
+      </div>
+    </div>
+
+    <!-- Reaction -->
+    <div class="r-sec">
+      <div class="sh"><span class="sh-t">Reaction</span><span class="sh-a">View All <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M9.293 17.707a1 1 0 0 1 0-1.414L13.586 12 9.293 7.707a1 1 0 1 1 1.414-1.414L15 10.586a2 2 0 0 1 0 2.828l-4.293 4.293a1 1 0 0 1-1.414 0" clip-rule="evenodd"/></svg></span></div>
+      <div class="r-grid">
+        <div class="r-card">
+          <img src="Assets/Crown%20reaction.png" alt="">
+          <div class="r-name">Purple Heart</div>
+          <div class="r-price"><img src="Assets/Gem%20icon.png" alt="">200 <span class="old">2,200</span></div>
+        </div>
+        <div class="r-card">
+          <img src="Assets/Football%20reaction.png" alt="">
+          <div class="r-name">All Eyes on You</div>
+          <div class="r-price"><img src="Assets/Gem%20icon.png" alt="">200</div>
+        </div>
+        <div class="r-card">
+          <img src="Assets/Sneaker%20reaction.png" alt="">
+          <div class="r-name">Hand Clap</div>
+          <div class="r-price"><img src="Assets/Gem%20icon.png" alt="">200</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coupon -->
+    <div class="c-sec">
+      <div class="c-hdr"><span class="sh-t">Coupon</span><button class="c-info-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M10.75 7.25c0-.7.55-1.25 1.26-1.25s1.24.55 1.24 1.25-.55 1.25-1.24 1.25-1.26-.55-1.26-1.25M13 11a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0z"/><path fill="currentColor" fill-rule="evenodd" d="M12 23c6.075 0 11-4.925 11-11S18.075 1 12 1 1 5.925 1 12s4.925 11 11 11m0-2a9 9 0 1 0 0-18 9 9 0 0 0 0 18" clip-rule="evenodd"/></svg></button></div>
+      <div class="c-list">
+        <div class="c-item">
+          <div class="c-item-img"><span class="c-price-label">£5</span></div>
+          <div class="c-item-body">
+            <div class="c-title-meta">
+              <div class="c-name">£5 off Coupon</div>
+              <div class="c-qty">Qty: 250</div>
+            </div>
+            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">500</div>
+          </div>
+        </div>
+        <div class="c-item">
+          <div class="c-item-img"><span class="c-price-label">£15</span></div>
+          <div class="c-item-body">
+            <div class="c-title-meta">
+              <div class="c-name">£15 off Coupon</div>
+              <div class="c-qty">Qty: 480</div>
+            </div>
+            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">2,000 <span class="old">10,000</span></div>
+          </div>
+        </div>
+        <div class="c-item">
+          <div class="c-item-img"><span class="c-price-label">£50</span></div>
+          <div class="c-item-body">
+            <div class="c-title-meta">
+              <div class="c-name">£50 off Coupon</div>
+              <div class="c-qty">Qty: 650</div>
+            </div>
+            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">10,000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     BOTTOM SHEET: INTRO
+     ═══════════════════════════════════════ -->
+<div class="ov" id="ov"></div>
+<div class="bs" id="bsheet">
+  <div class="bs-handle"></div>
+  <div class="bs-body">
+    <div class="cp-card">
+      <div class="cp-msg">
+        <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
+        <div><div class="cp-user">andy</div><div class="cp-text">yay! 🥳🥳🥳</div></div>
+      </div>
+      <div class="cp-msg">
+        <div class="cp-av"><img src="Assets/User%20avatar.png" alt=""></div>
+        <div><div class="cp-user">labubunation</div><div class="cp-text gfx">Happy Friday!!!</div></div>
+      </div>
+      <div class="cp-msg">
+        <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
+        <div><div class="cp-user">gowee</div><div class="cp-text" style="color:#999">Hey friends!</div></div>
+      </div>
+    </div>
+    <div class="bs-title">Live Chat effect is<br>online! 7 days access!</div>
+    <div class="bs-desc">Stand out in the live chat with a special effect on your messages. Limited-time access — expires 7 days after purchase.</div>
+    <button class="bs-btn" id="browseBtn">Browse now</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2: EFFECT PREVIEW
+     ═══════════════════════════════════════ -->
+<div class="scr" id="scrEP" style="display:flex;flex-direction:column">
+  <div class="dark-bg"></div>
+  <div class="enav">
+    <button class="enav-back" id="epBack"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#fff" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
+    <div class="enav-title">Chat Effect</div>
+    <div class="enav-gem"><img src="Assets/Gem%20icon.png" alt="">120</div>
+  </div>
+
+  <div class="echat" id="epChat">
+    <div class="em"><div class="em-u">friend</div><div class="em-t muted">yay! 🥳🥳🥳</div></div>
+    <div class="em" id="epMsgWrap">
+      <div class="em-u">labubunation</div>
+      <div class="em-t grad" id="epMsg">Happy Friday!!!</div>
+    </div>
+    <div class="em"><div class="em-u">friend</div><div class="em-t muted">Hey friends!</div></div>
+  </div>
+
+  <div class="ebot">
+    <div class="etabs" id="epTabs">
+      <button class="etab on" data-e="gradient">Gradient</button>
+      <button class="etab it" data-e="outline">Outline</button>
+      <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
+      <div class="etab-sw grn"></div>
+      <div class="etab-sw pnk"></div>
+    </div>
+    <div style="height:20px"></div>
+    <div class="edisc">Once you confirm, the purchase cannot be canceled</div>
+    <button class="ebuy" id="buyBtn">Buy for&nbsp;<img src="Assets/Gem%20icon.png" alt="">&nbsp;400 · 7-day access</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3: POST-PURCHASE
+     ═══════════════════════════════════════ -->
+<div class="scr" id="scrPP" style="display:flex;flex-direction:column">
+  <div class="dark-bg"></div>
+  <div class="enav"><div style="width:40px"></div><div class="enav-title"></div><div style="width:40px"></div></div>
+
+  <div class="echat">
+    <div class="em"><div class="em-u">friend</div><div class="em-t muted">yay! 🥳🥳🥳</div></div>
+    <div class="em"><div class="em-u">labubunation</div><div class="em-t grad" id="ppMsg">Let's go!</div></div>
+    <div class="em"><div class="em-u">friend</div><div class="em-t muted">Hey friends!</div></div>
+  </div>
+
+  <div class="ebot">
+    <div class="etabs" id="ppTabs">
+      <button class="etab on" data-e="gradient">Gradient</button>
+      <button class="etab it" data-e="outline">Outline</button>
+      <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
+    </div>
+    <div style="height:12px"></div>
+    <div class="eexp">Expires: <span>7 days</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 4: TYPING
+     ═══════════════════════════════════════ -->
+<div class="scr" id="scrTS" style="display:flex;flex-direction:column">
+  <div class="dark-bg"></div>
+  <div class="enav">
+    <button class="enav-back" id="tsBack"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#fff" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
+    <div class="enav-title">Chat Effect</div>
+    <div class="enav-gem"><img src="Assets/Gem%20icon.png" alt="">120</div>
+  </div>
+
+  <div class="ts-area">
+    <div class="ts-ph" id="tsPh">Type anything</div>
+    <div class="ts-inp g-s" id="tsInp" contenteditable="true" spellcheck="false"></div>
+  </div>
+
+  <div class="ts-tabs" id="tsTabs" style="bottom:326px">
+    <button class="etab on" data-e="gradient">Gradient</button>
+    <button class="etab it" data-e="outline">Outline</button>
+    <button class="etab" data-e="dynamic">Dynamic <span class="etab-sm">font</span></button>
+  </div>
+
+  <div class="kb">
+    <div class="kr">
+      <div class="k">Q</div><div class="k">W</div><div class="k">E</div><div class="k">R</div><div class="k">T</div><div class="k">Y</div><div class="k">U</div><div class="k">I</div><div class="k">O</div><div class="k">P</div>
+    </div>
+    <div class="kr" style="padding:0 18px">
+      <div class="k">A</div><div class="k">S</div><div class="k">D</div><div class="k">F</div><div class="k">G</div><div class="k">H</div><div class="k">J</div><div class="k">K</div><div class="k">L</div>
+    </div>
+    <div class="kr">
+      <div class="k sp" style="min-width:46px">⇧</div>
+      <div class="k">Z</div><div class="k">X</div><div class="k">C</div><div class="k">V</div><div class="k">B</div><div class="k">N</div><div class="k">M</div>
+      <div class="k sp" style="min-width:46px">⌫</div>
+    </div>
+    <div class="kr">
+      <div class="k sp">123</div>
+      <div class="k" style="font-size:24px">😊</div>
+      <div class="k spc">space</div>
+      <div class="k dn" id="doneKey">Done</div>
+    </div>
+    <div class="kb-extra"><span style="cursor:pointer">☺</span><span style="cursor:pointer;color:#666">🎤</span></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-ic" id="toastIc">Gr</div>
+  <div>
+    <div class="toast-tt" id="toastTt">You purchased Gradient!</div>
+    <div class="toast-st">7 days only! Join a live now to show your effect!</div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const scrGS=$('#scrGS'),scrEP=$('#scrEP'),scrPP=$('#scrPP'),scrTS=$('#scrTS');
+let curFx='gradient';
+
+function go(scr){
+  [scrGS,scrEP,scrPP,scrTS].forEach(s=>s.classList.remove('on'));
+  scr.classList.add('on');
+  const light=scr!==scrGS;
+  $('#sbar').className=light?'sbar light':'sbar dark';
+  $('#hind').className=light?'hind light':'hind dark';
+}
+
+/* Sheet */
+function openSheet(){$('#ov').classList.add('on');$('#bsheet').classList.add('on');$('#sbar').className='sbar light'}
+function closeSheet(){$('#ov').classList.remove('on');$('#bsheet').classList.remove('on');$('#sbar').className='sbar dark'}
+
+$('#ceBanner').onclick=openSheet;
+$('#ov').onclick=closeSheet;
+$('#browseBtn').onclick=()=>{closeSheet();setTimeout(()=>go(scrEP),250)};
+
+/* Navigation */
+$('#epBack').onclick=()=>go(scrGS);
+$('#tsBack').onclick=()=>go(scrEP);
+$('#doneKey').onclick=()=>go(scrEP);
+
+/* Tab switching */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('.etab[data-e]');
+  if(!t)return;
+  curFx=t.dataset.e;
+  $$('.etab[data-e]').forEach(b=>b.classList.toggle('on',b.dataset.e===curFx));
+  renderPreview();
+  renderTyping();
+});
+
+function renderPreview(){
+  const wrap=$('#epMsgWrap');
+  // Rebuild
+  if(curFx==='dynamic'){
+    wrap.innerHTML=`<div class="em-box"><div class="em-u" style="color:#ccc">labubunation</div><div class="em-t inbox" id="epMsg">Let's go!</div></div>`;
+  } else {
+    const cls=curFx==='gradient'?'grad':'outl';
+    const txt=curFx==='gradient'?'Happy Friday!!!':"Let's go!";
+    wrap.innerHTML=`<div class="em-u">labubunation</div><div class="em-t ${cls}" id="epMsg">${txt}</div>`;
+  }
+  // Post-purchase mirror
+  const pp=$('#ppMsg');
+  if(pp){
+    pp.className='em-t';
+    pp.classList.add(curFx==='gradient'?'grad':curFx==='outline'?'outl':'inbox');
+    pp.textContent="Let's go!";
+  }
+}
+
+function renderTyping(){
+  const el=$('#tsInp');
+  el.className='ts-inp';
+  el.classList.add(curFx==='gradient'?'g-s':curFx==='outline'?'o-s':'d-s');
+}
+
+/* Buy */
+$('#buyBtn').onclick=()=>{
+  go(scrPP);
+  const nm={gradient:'Gradient',outline:'Outline',dynamic:'Dynamic Font'};
+  const ab={gradient:'Gr',outline:'Ou',dynamic:'Dy'};
+  $('#toastTt').textContent=`You purchased ${nm[curFx]}!`;
+  $('#toastIc').textContent=ab[curFx];
+  setTimeout(()=>$('#toast').classList.add('show'),400);
+  setTimeout(()=>$('#toast').classList.remove('show'),4000);
+  // Tap anywhere on post-purchase -> typing
+  setTimeout(()=>{
+    scrPP.onclick=()=>{go(scrTS);setTimeout(()=>$('#tsInp').focus(),300);scrPP.onclick=null};
+  },500);
+};
+
+/* Keyboard */
+$$('.k').forEach(k=>{
+  k.addEventListener('click',e=>{
+    e.stopPropagation();
+    const inp=$('#tsInp'),ph=$('#tsPh'),t=k.textContent;
+    if(k.classList.contains('dn')){go(scrEP);return}
+    if(t==='⌫')inp.textContent=inp.textContent.slice(0,-1);
+    else if(t==='⇧'||t==='123')return;
+    else if(t==='space')inp.textContent+=' ';
+    else inp.textContent+=t;
+    ph.style.display=inp.textContent.length?'none':'';
+  });
+});
+$('#tsInp').addEventListener('input',()=>{
+  $('#tsPh').style.display=$('#tsInp').textContent.length?'none':'';
+});
+</script>
+
+</body>
+</html>

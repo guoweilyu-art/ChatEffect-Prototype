@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Live Stream</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji"}
+
+.phone{
+  width:393px;height:852px;position:relative;overflow:hidden;
+  background:#000;border-radius:44px;border:4px solid #333;
+}
+
+/* Full-screen video background */
+.live-bg{
+  position:absolute;
+  top:-10%;left:-5%;
+  width:110%;height:120%;
+  object-fit:cover;
+}
+.live-overlay-bottom{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(to top,rgba(0,0,0,0.8) 14%,rgba(0,0,0,0) 50%);
+  border-radius:20px;
+}
+.live-overlay-top{
+  position:absolute;top:0;left:0;right:0;height:108px;z-index:1;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0) 100%);
+}
+
+/* Status bar */
+.sbar{
+  position:absolute;top:0;left:0;right:0;z-index:500;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 30px 0;height:54px;
+  font-size:16px;font-weight:600;letter-spacing:-.3px;
+  color:#fff;pointer-events:none;
+}
+.sbar-r{display:flex;gap:5px;align-items:center}
+
+/* Top bar */
+.top-bar{
+  position:absolute;top:54px;left:0;right:0;z-index:10;
+  display:flex;align-items:center;padding:8px 12px;gap:8px;
+}
+.streamer{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.streamer-avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.streamer-avatar img{width:100%;height:100%;object-fit:cover}
+.streamer-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.streamer-name{font-size:14px;font-weight:600;color:#fff;line-height:19px;letter-spacing:-0.15px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25)}
+.streamer-meta{display:flex;align-items:center;gap:4px;height:20px}
+.star-rating{display:flex;align-items:center;gap:2px}
+.star-rating img{width:12px;height:12px}
+.star-rating span{font-size:12px;font-weight:600;color:rgba(255,255,255,0.8);line-height:16px;
+  text-shadow:0 1px 1px rgba(0,0,0,0.25)}
+.follow-btn{
+  background:#f9dc00;color:#161616;border:none;border-radius:999px;
+  padding:3px 8px 4px;font-size:10px;font-weight:600;line-height:12px;letter-spacing:0.12px;
+  cursor:pointer;height:20px;font-family:inherit;
+}
+.top-controls{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.rewards-badge{width:28px;height:28px;overflow:hidden;flex-shrink:0}
+.rewards-badge img{width:100%;height:100%;object-fit:contain}
+.live-count{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(0,0,0,0.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-radius:40px;padding:4px 8px 4px 4px;
+}
+.live-icon{
+  width:24px;height:24px;border-radius:50%;
+  background:#ef233c;backdrop-filter:blur(20px);
+  position:relative;display:flex;align-items:flex-end;justify-content:center;
+  gap:2px;padding-bottom:7px;
+}
+.live-bar{background:#fff;border-radius:40px;width:2px}
+.live-bar1{animation:bar1 1.2s ease-in-out infinite}
+.live-bar2{animation:bar2 1.2s ease-in-out infinite}
+.live-bar3{animation:bar3 1.2s ease-in-out infinite}
+@keyframes bar1{0%,100%{height:7px}33%{height:10px}66%{height:4px}}
+@keyframes bar2{0%,100%{height:9px}33%{height:4px}66%{height:7px}}
+@keyframes bar3{0%,100%{height:6px}33%{height:7px}66%{height:10px}}
+.live-count span{font-size:12px;font-weight:600;color:#fff;line-height:16px}
+.top-dropdown{
+  width:32px;height:32px;border-radius:999px;
+  background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.top-dropdown img{width:20px;height:20px}
+
+/* Watch shows badge */
+.watch-badge{
+  position:absolute;top:110px;left:12px;z-index:10;
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+}
+.watch-gem{width:24px;height:24px}
+.watch-label{
+  background:rgba(0,0,0,0.6);border-radius:6px;padding:4px 8px;
+  display:flex;flex-direction:column;
+}
+.watch-label-t{font-size:12px;font-weight:600;color:#fff;line-height:16px}
+.watch-label-time{font-size:10px;font-weight:400;color:rgba(255,255,255,0.7);line-height:12px}
+
+/* Right sidebar */
+.sidebar{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  flex-shrink:0;width:48px;
+}
+.sb-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.sb-icon{
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.sb-icon img{width:24px;height:24px;filter:brightness(0) invert(1)}
+.sb-label{font-size:10px;font-weight:400;color:#fff;line-height:12px;letter-spacing:0.12px;
+  text-shadow:0 1px 1px rgba(0,0,0,0.3)}
+.sb-dot{
+  position:absolute;top:-2px;right:-2px;
+  width:10px;height:10px;border-radius:50%;
+  background:#FF3B30;border:1.5px solid rgba(0,0,0,0.3);
+}
+.sb-shop{
+  width:48px;height:52px;position:relative;
+  backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border-radius:100px;
+  display:flex;align-items:center;justify-content:center;
+}
+.sb-shop-cards{position:relative;width:40px;height:40px}
+.sb-shop-card{
+  position:absolute;left:50%;transform:translateX(-50%);
+  overflow:hidden;
+}
+.sb-shop-card:nth-child(1){
+  width:24px;height:24px;border-radius:3px;opacity:0.2;
+  top:-8px;
+}
+.sb-shop-card:nth-child(2){
+  width:32px;height:32px;border-radius:4px;opacity:0.8;
+  top:-2px;
+}
+.sb-shop-card:nth-child(3){
+  width:40px;height:40px;border-radius:5px;
+  top:4px;
+}
+.sb-shop-card img{width:100%;height:100%;object-fit:cover}
+.sb-shop-count{
+  position:absolute;top:0;right:0;z-index:1;
+  background:#fff;color:#000;font-size:9px;font-weight:600;
+  min-width:12px;height:12px;border-radius:38px;
+  display:flex;align-items:center;justify-content:center;
+  padding:2px;letter-spacing:0.12px;
+}
+
+/* Chat + Sidebar container */
+.chat-sidebar{
+  position:absolute;bottom:198px;left:0;right:0;z-index:10;
+  display:flex;align-items:flex-end;
+  padding:0 6px 0 12px;
+}
+/* Chat messages */
+.chat-area{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;gap:8px;
+}
+.chat-msg{display:flex;align-items:flex-start;gap:8px}
+.chat-av{width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.chat-av img{width:100%;height:100%;object-fit:cover}
+.chat-body{display:flex;flex-direction:column}
+.chat-user{font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);line-height:18px;letter-spacing:-0.08px}
+.chat-text{font-size:13px;font-weight:400;color:#fff;line-height:18px;letter-spacing:-0.08px}
+
+/* Chat column */
+.chat-col{
+  flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;
+  margin-right:32px;
+}
+/* Input bar */
+.input-bar{
+  display:flex;align-items:center;gap:8px;
+}
+.input-field{
+  flex:1;height:36px;border-radius:48px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.4);
+  padding:0 12px;
+  font-size:14px;line-height:19px;letter-spacing:-0.15px;
+  color:rgba(255,255,255,0.7);font-weight:400;
+  display:flex;align-items:center;
+}
+.input-hand{
+  width:44px;height:36px;border-radius:999px;flex-shrink:0;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,0.4);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;overflow:hidden;
+}
+.input-hand img{width:32px;height:32px;position:relative}
+
+/* Purchase bar */
+.purchase-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  background:transparent;
+  padding:0 16px 34px;margin-top:0;
+}
+.purchase-inner{display:flex;flex-direction:column;gap:16px}
+.purchase-wp{display:flex;flex-direction:column;gap:8px}
+.purchase-winner{
+  display:flex;align-items:center;gap:4px;
+}
+.purchase-winner-av{width:16px;height:16px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.purchase-winner-av img{width:100%;height:100%;object-fit:cover}
+.purchase-winner-name{font-size:12px;font-weight:600;color:#fff;line-height:16px}
+.purchase-winner-label{font-size:12px;font-weight:600;color:#f9dc00;line-height:16px}
+
+.purchase-item{
+  display:flex;align-items:flex-start;gap:12px;min-height:64px;
+}
+.purchase-img{
+  width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;
+  border:1px solid #fff;
+}
+.purchase-img img{width:100%;height:100%;object-fit:cover}
+.purchase-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;min-height:64px}
+.purchase-title{font-size:16px;font-weight:600;color:#fff;line-height:21px;letter-spacing:-0.31px}
+.purchase-desc{font-size:13px;font-weight:400;color:#fff;line-height:18px;letter-spacing:-0.08px}
+.purchase-ship{font-size:13px;font-weight:400;color:rgba(255,255,255,0.8);line-height:18px;letter-spacing:-0.08px}
+.purchase-price{text-align:right;flex-shrink:0;width:64px;display:flex;flex-direction:column;align-items:flex-end}
+.purchase-amount{font-size:16px;font-weight:600;color:#fff;line-height:21px;letter-spacing:-0.31px}
+.purchase-sold{font-size:13px;font-weight:600;color:#ef233c;line-height:18px;letter-spacing:-0.08px}
+
+.purchase-btn{
+  width:100%;height:44px;border-radius:999px;
+  background:rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:none;font-size:16px;font-weight:600;line-height:20px;letter-spacing:-0.41px;
+  cursor:pointer;font-family:inherit;
+}
+
+/* Home indicator */
+.hind{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:100px;background:rgba(255,255,255,0.3);
+  z-index:600;
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+<!-- Video background -->
+<video class="live-bg" autoplay loop muted playsinline>
+  <source src="Assets/live-recording.mp4" type="video/mp4">
+  <source src="Assets/live-recording.mov" type="video/quicktime">
+</video>
+<div class="live-overlay-bottom"></div>
+<div class="live-overlay-top"></div>
+
+<!-- Status bar -->
+<div class="sbar">
+  <span>9:41</span>
+  <div class="sbar-r">
+    <svg width="18" height="12" fill="none"><rect x="1" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="5.5" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="10" y="0" width="3" height="12" rx="1" fill="#fff"/><rect x="14.5" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+    <svg width="16" height="12" fill="#fff"><path d="M8 1.6A8.7 8.7 0 0 1 14.6 4l1-1.2A10.4 10.4 0 0 0 8 0 10.4 10.4 0 0 0 .4 2.8L1.4 4A8.7 8.7 0 0 1 8 1.6Zm0 3.2c1.7 0 3.3.6 4.5 1.7l1-1.2A7.5 7.5 0 0 0 8 3.2a7.5 7.5 0 0 0-5.5 2.1l1 1.2A5.9 5.9 0 0 1 8 4.8Zm0 3.2c1 0 2 .4 2.7 1l1-1.1A5 5 0 0 0 8 6.4a5 5 0 0 0-3.7 1.5l1 1.1c.7-.6 1.7-1 2.7-1ZM9.2 10a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0Z"/></svg>
+    <svg width="27" height="13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity=".35"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/><path d="M25 5v3a2 2 0 0 0 0-3Z" fill="#fff" fill-opacity=".4"/></svg>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <div class="streamer">
+    <div class="streamer-avatar"><img src="Assets/streamer-avatar-32.png" alt=""></div>
+    <div class="streamer-info">
+      <div class="streamer-name">mytycoco</div>
+      <div class="streamer-meta">
+        <div class="star-rating">
+          <img src="Assets/icon-star.svg" alt="">
+          <span>4.9</span>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+    </div>
+  </div>
+  <div class="top-controls">
+    <div class="rewards-badge"><img src="Assets/rewards-badge.png" alt=""></div>
+    <div class="live-count">
+      <div class="live-icon">
+        <div class="live-bar live-bar1"></div>
+        <div class="live-bar live-bar2"></div>
+        <div class="live-bar live-bar3"></div>
+      </div>
+      <span>120</span>
+    </div>
+    <div class="top-dropdown">
+      <img src="Assets/icon-arrow-down.svg" alt="">
+    </div>
+  </div>
+</div>
+
+
+<!-- Chat + Sidebar container -->
+<div class="chat-sidebar">
+  <div class="chat-col">
+    <div class="chat-area">
+      <div class="chat-msg">
+        <div class="chat-av"><img src="Assets/chat-avatar1.png" alt=""></div>
+        <div class="chat-body">
+          <div class="chat-user">somedude</div>
+          <div class="chat-text">Hey</div>
+        </div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-av"><img src="Assets/chat-avatar1.png" alt=""></div>
+        <div class="chat-body">
+          <div class="chat-user">somedude</div>
+          <div class="chat-text">can't wait for this weeks show!</div>
+        </div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-av"><img src="Assets/chat-avatar2.png" alt=""></div>
+        <div class="chat-body">
+          <div class="chat-user">lilbawler</div>
+          <div class="chat-text">yay! 🥳🥳🥳</div>
+        </div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-av"><img src="Assets/chat-avatar3.png" alt=""></div>
+        <div class="chat-body">
+          <div class="chat-user">notstarr</div>
+          <div class="chat-text">my wallet is ready</div>
+        </div>
+      </div>
+    </div>
+    <div class="input-bar">
+      <div class="input-field">Say something...</div>
+      <div class="input-hand"><img src="Assets/hand-entry.png" alt=""></div>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sb-item">
+      <div class="sb-icon"><img src="Assets/icon-more.svg" alt=""></div>
+      <span class="sb-label">More</span>
+    </div>
+    <div class="sb-item">
+      <div class="sb-icon"><img src="Assets/icon-boost.svg" alt=""></div>
+      <span class="sb-label">Boost</span>
+    </div>
+    <div class="sb-item">
+      <div class="sb-icon"><img src="Assets/icon-clip.svg" alt=""></div>
+      <span class="sb-label">Clip</span>
+    </div>
+    <div class="sb-item">
+      <div class="sb-icon"><img src="Assets/icon-share.svg" alt=""></div>
+      <span class="sb-label">Share</span>
+    </div>
+    <div class="sb-item">
+      <div class="sb-icon">
+        <img src="Assets/icon-wallet.svg" alt="">
+        <div class="sb-dot"></div>
+      </div>
+      <span class="sb-label">Wallet</span>
+    </div>
+    <div class="sb-item" style="margin-top:4px">
+      <div class="sb-shop">
+        <div class="sb-shop-cards">
+          <div class="sb-shop-card"><img src="Assets/shop-card-bg.png" alt=""></div>
+          <div class="sb-shop-card"><img src="Assets/shop-card-bg.png" alt=""></div>
+          <div class="sb-shop-card"><img src="Assets/shop-card-main.png" alt=""></div>
+        </div>
+        <div class="sb-shop-count">56</div>
+      </div>
+      <span class="sb-label">Shop</span>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase bar -->
+<div class="purchase-bar">
+  <div class="purchase-inner">
+    <div class="purchase-wp">
+      <div class="purchase-winner">
+        <div class="purchase-winner-av"><img src="Assets/winner-avatar.png" alt=""></div>
+        <span class="purchase-winner-name">kellykim </span>
+        <span class="purchase-winner-label">won!</span>
+      </div>
+      <div class="purchase-item">
+        <div class="purchase-img"><img src="Assets/product-item.png" alt=""></div>
+        <div class="purchase-info">
+          <div class="purchase-title">Popmart item #3</div>
+          <div class="purchase-desc">Authentic Pop Mart Item</div>
+          <div class="purchase-ship">$4.13 Shipping + Taxes</div>
+        </div>
+        <div class="purchase-price">
+          <div class="purchase-amount">$49</div>
+          <div class="purchase-sold">Sold</div>
+        </div>
+      </div>
+    </div>
+    <button class="purchase-btn">Awaiting Next Item</button>
+  </div>
+</div>
+
+<!-- Home indicator -->
+<div class="hind" style="background:rgba(255,255,255,0.3)"></div>
+
+</div>
+
+</body>
+</html>
