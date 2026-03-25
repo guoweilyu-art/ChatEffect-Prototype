@@ -176,6 +176,22 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
   height:18px;overflow:hidden;text-shadow:0 1px 1px rgba(0,0,0,0.25)}
 .chat-text{font-size:13px;font-weight:600;color:#fff;line-height:18px;letter-spacing:-0.08px;
   text-shadow:0 1px 1px rgba(0,0,0,0.25)}
+.chat-text.fx-grad{
+  background:linear-gradient(90deg,#a3fff6,#f9ff8f);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.chat-text.fx-outl{
+  color:#fff;font-weight:760;font-stretch:expanded;font-variation-settings:'wdth' 132;
+  -webkit-text-stroke:3px transparent;paint-order:stroke fill;position:relative;
+}
+.chat-text.fx-outl::before{
+  content:attr(data-text);position:absolute;top:0;left:0;
+  font-weight:inherit;font-size:inherit;line-height:inherit;letter-spacing:inherit;
+  font-variation-settings:inherit;font-stretch:inherit;
+  -webkit-text-fill-color:transparent;-webkit-text-stroke:3px transparent;
+  background:linear-gradient(180deg,#9CE3FF,#688CFF);
+  -webkit-background-clip:text;background-clip:text;z-index:-1;
+}
 
 /* Chat column */
 .chat-col{
@@ -600,11 +616,17 @@ function addMessage(){
   msg.className='chat-msg';
   msg.style.opacity='0';msg.style.transform='translateY(10px)';
   msg.style.transition='opacity .3s ease-out,transform .3s ease-out';
+  const r=Math.random();
+  let fxClass='';
+  let dataText='';
+  if(r<0.15)fxClass='fx-grad';
+  else if(r<0.25){fxClass='fx-outl';dataText=` data-text="${text}"`}
+
   msg.innerHTML=`
     <div class="chat-av"><img src="${avatar}" alt=""></div>
     <div class="chat-body">
       <div class="chat-user">${user}</div>
-      <div class="chat-text">${text}</div>
+      <div class="chat-text ${fxClass}"${dataText}>${text}</div>
     </div>`;
 
   chatArea.appendChild(msg);
@@ -639,11 +661,10 @@ inputField.addEventListener('click',()=>{
 
 liveInputField.addEventListener('input',updateSendBtn);
 
-function getStyleCSS(){
-  if(liveStyle==='gradient')return'background:linear-gradient(90deg,#a3fff6,#f9ff8f);-webkit-background-clip:text;-webkit-text-fill-color:transparent';
-  if(liveStyle==='outline')return'color:#fff;font-weight:760;font-stretch:expanded;-webkit-text-stroke:2px transparent;paint-order:stroke fill;background:linear-gradient(180deg,#9CE3FF,#688CFF);-webkit-background-clip:text';
-  if(liveStyle==='dynamic')return'color:#fff';
-  return'color:#fff';
+function getStyleClass(){
+  if(liveStyle==='gradient')return'fx-grad';
+  if(liveStyle==='outline')return'fx-outl';
+  return'';
 }
 function sendUserMessage(){
   const text=liveInputField.value.trim();
@@ -656,7 +677,7 @@ function sendUserMessage(){
     <div class="chat-av"><img src="Assets/User%20avatar.png" alt=""></div>
     <div class="chat-body">
       <div class="chat-user">labubunation</div>
-      <div class="chat-text" style="${getStyleCSS()}">${text}</div>
+      <div class="chat-text ${getStyleClass()}"${liveStyle==='outline'?' data-text="'+text+'"':''}>${text}</div>
     </div>`;
   chatArea.appendChild(msg);
   requestAnimationFrame(()=>{msg.style.opacity='1';msg.style.transform='translateY(0)'});
