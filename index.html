@@ -21,6 +21,9 @@ html,body{
   border-radius:47px;overflow:hidden;position:relative;
   box-shadow:0 40px 100px rgba(0,0,0,.5);
 }
+/* When embedded in iframe, let shell handle centering and bezel */
+.in-iframe body{background:transparent;min-height:auto;overflow:auto}
+.in-iframe .phone{border-radius:0;box-shadow:none}
 
 /* ═══════ Status Bar ═══════ */
 .sbar{
@@ -967,6 +970,7 @@ html,body{
 </div><!-- /phone -->
 
 <script>
+if(window!==window.top)document.documentElement.classList.add('in-iframe');
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const scrGS=$('#scrGS'),scrEP=$('#scrEP'),scrPP=$('#scrPP'),scrTS=$('#scrTS');

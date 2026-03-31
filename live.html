@@ -12,6 +12,8 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
   width:393px;height:852px;position:relative;overflow:hidden;
   background:#000;border-radius:44px;border:4px solid #333;
 }
+.in-iframe body{background:transparent;min-height:auto;overflow:auto}
+.in-iframe .phone{border-radius:0;border:none}
 
 /* Full-screen video background */
 .live-bg{
@@ -593,6 +595,7 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 </div>
 
 <script>
+if(window!==window.top)document.documentElement.classList.add('in-iframe');
 const chatArea=document.querySelector('.chat-area');
 const avatars=['Assets/chat-avatar1.png','Assets/chat-avatar2.png','Assets/chat-avatar3.png','Assets/winner-avatar.png','Assets/streamer-avatar-32.png'];
 const users=['somedude','lilbawler','notstarr','kellykim','bigfan99','sneakerhead','popmart_lover','chill_vibes','hype_beast','lucky_duck'];
