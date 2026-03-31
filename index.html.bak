@@ -111,7 +111,7 @@ html,body{
 .jcard{
   border-radius:16px;overflow:hidden;
   height:316px;position:relative;
-  background:url('Assets/Background%20image.png') center/cover no-repeat;
+  background:url('../Assets/Background%20image.png') center/cover no-repeat;
   margin-bottom:14px;
 }
 .jcard-img{
@@ -177,7 +177,7 @@ html,body{
 }
 .ce-banner-bg{
   position:absolute;inset:0;
-  background:url('Assets/Background%20image.png') center/cover no-repeat;
+  background:url('../Assets/Background%20image.png') center/cover no-repeat;
 }
 .ce-banner-bg::before{
   content:'';position:absolute;inset:0;
@@ -243,7 +243,7 @@ html,body{
 .c-item:last-child{border-bottom:none;padding-bottom:0}
 .c-item-img{
   width:140px;height:140px;flex-shrink:0;border-radius:8px;
-  background:url('Assets/Coupon%20background.png') center/cover no-repeat;
+  background:url('../Assets/Coupon%20background.png') center/cover no-repeat;
   position:relative;overflow:hidden;
   display:flex;align-items:center;justify-content:center;
 }
@@ -288,7 +288,7 @@ html,body{
 }
 .cp-card-bg{
   position:absolute;inset:0;
-  background:url('Assets/Background%20image.png') center/cover no-repeat;
+  background:url('../Assets/Background%20image.png') center/cover no-repeat;
 }
 .cp-card-bg::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.8)}
 .cp-card-bg::after{
@@ -350,7 +350,7 @@ html,body{
 .scr.no-trans{transition:none!important}
 #transOverlay .trans-bg{
   position:absolute;
-  background:url('Assets/Background%20image.png') center/cover no-repeat;
+  background:url('../Assets/Background%20image.png') center/cover no-repeat;
   transition:all .4s cubic-bezier(0.4,0,0.2,1);
 }
 #transOverlay .trans-dark{
@@ -370,7 +370,7 @@ html,body{
    ═══════════════════════════════════════ */
 .dark-bg{
   position:absolute;inset:0;
-  background:url('Assets/Background%20image.png') center/cover no-repeat;
+  background:url('../Assets/Background%20image.png') center/cover no-repeat;
 }
 
 .enav{
@@ -503,7 +503,7 @@ html,body{
 .etab-sw.on img{width:68px}
 
 /* Bottom controls */
-.ebot{padding:16px 16px 51px;position:relative;z-index:2;display:flex;flex-direction:column;gap:10px}
+.ebot{padding:16px 16px 34px;position:relative;z-index:2;display:flex;flex-direction:column;gap:10px}
 .edisc{font-size:12px;line-height:16px;color:#aaa;text-align:center;font-weight:400}
 .ebuy{
   width:100%;height:44px;
@@ -519,48 +519,30 @@ html,body{
 .eexp span{color:#22C55E}
 
 /* ── Edit mode on preview screen ── */
-
-/* Fade elements — enter uses Standard Entry 450ms, exit uses Standard Exit 300ms */
-.etabs-wrap,.ebot .edisc,.ebot .ebuy,.ebot>div[style="height:64px"],
-.enav,.em.muted,.em-u{
-  transition:opacity .2s cubic-bezier(0.4,0,1,1);
+.em.muted,.em-u,.enav,.ebot .edisc,.ebot .ebuy,.ebot>div[style]{
+  transition:opacity .4s ease-in-out,transform .4s ease-in-out;
 }
-.scr.editing .etabs-wrap,
-.scr.editing .ebot .edisc,
-.scr.editing .ebot .ebuy,
-.scr.editing .ebot>div[style="height:64px"],
-.scr.editing .enav,
-.scr.editing .em.muted,
-.scr.editing .em-u{
-  transition:opacity .45s cubic-bezier(0,0,0.05,1);
-}
-.scr.editing .etabs-wrap,
-.scr.editing .ebot .edisc,
-.scr.editing .ebot .ebuy,
-.scr.editing .ebot>div[style="height:64px"]{opacity:0;pointer-events:none}
-.scr.editing .enav{opacity:0;pointer-events:none}
-.scr.editing .em.muted{opacity:0;pointer-events:none}
-.scr.editing .em-u{opacity:0}
-
-/* Keyboard */
-.ep-kb{overflow:hidden;max-height:0;z-index:2;margin:0 -16px;background:#D1D4DB}
-.scr.editing .ep-kb{max-height:400px;margin-bottom:-51px;transition:max-height .45s cubic-bezier(0,0,0.05,1)}
-
-/* Layout changes — instant, no CSS transition (JS FLIP handles text) */
-.scr.editing .em.muted{max-height:0;overflow:hidden;margin:0;padding:0}
-.scr.editing .em-u{max-height:0;overflow:hidden}
-.scr.editing .echat-inner{max-width:100%;gap:0}
-.scr.editing .ebot .edisc,
-.scr.editing .ebot .ebuy,
-.scr.editing .ebot>div[style="height:64px"]{max-height:0;overflow:hidden;margin:0;padding:0}
-.scr.editing .ebot{padding-top:0;padding-bottom:0;gap:0}
+.scr.editing .em.muted{opacity:0;pointer-events:none;height:0;overflow:hidden;transition:opacity .4s ease-in-out}
+.scr.editing .em-u{opacity:0;height:0;overflow:hidden;transition:opacity .4s ease-in-out}
+.scr.editing .ebot .edisc{display:none}
+.scr.editing .ebot .ebuy{display:none}
+.scr.editing .ebot>div[style="height:64px"]{display:none}
+.scr.editing .enav{opacity:0;pointer-events:none;transition:opacity .4s ease-in-out}
+.ep-kb{overflow:hidden;max-height:0;transition:max-height .4s ease-in-out;z-index:2;margin:0 -16px}
+.scr.editing .ebot{padding-bottom:0;gap:0}
+.echat{transition:padding .4s ease-in-out}
+.scr.editing .echat{padding:36px}
+.echat-inner{transition:max-width .4s ease-in-out}
+.scr.editing .echat-inner{max-width:100%}
+.etabs-wrap{transition:margin .4s ease-in-out}
+.scr.editing .ep-kb{max-height:400px;margin-top:20px}
 .ep-cursor{
   display:inline-block;width:2px;height:0.9em;background:#fff;
   vertical-align:baseline;margin-left:2px;
   animation:blink 1s step-end infinite;
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.ep-kb .kb{position:relative;padding-bottom:64px}
+.ep-kb .kb{position:relative;padding-bottom:45px}
 .em-t[contenteditable]{outline:none;caret-color:rgba(255,255,255,.7);cursor:text;-webkit-user-select:text;user-select:text}
 
 /* ═══════════════════════════════════════
@@ -661,8 +643,8 @@ html,body{
   <div class="gs-nav">
     <button class="gs-back"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#111" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
     <div class="gs-nav-badges">
-      <div class="badge"><img src="Assets/Whatnot%20credit%20icon.png" alt="coins">$0</div>
-      <div class="badge"><img src="Assets/Gem%20icon.png" alt="gems">123,200,200</div>
+      <div class="badge"><img src="../Assets/Whatnot%20credit%20icon.png" alt="coins">$0</div>
+      <div class="badge"><img src="../Assets/Gem%20icon.png" alt="gems">123,200,200</div>
     </div>
   </div>
 
@@ -686,10 +668,10 @@ html,body{
     <div class="sh-sub">Live purchase announcements</div>
 
     <div class="jcard">
-      <img class="jcard-img" src="Assets/Smile%20face%20preview.png" alt="">
+      <img class="jcard-img" src="../Assets/Smile%20face%20preview.png" alt="">
       <div class="jcard-bot">
         <div>
-          <div class="jcard-price"><img src="Assets/Gem%20icon.png" alt="">12,200</div>
+          <div class="jcard-price"><img src="../Assets/Gem%20icon.png" alt="">12,200</div>
           <div class="jcard-name">Cheer Cyclone</div>
         </div>
         <button class="jcard-btn">View</button>
@@ -697,25 +679,25 @@ html,body{
     </div>
 
     <div class="jthumbs">
-      <div class="jthumb selected"><img src="Assets/smile%20face%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/crown%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/holiday%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/magic%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/smile%20face%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/crown%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/holiday%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
-      <div class="jthumb"><img src="Assets/magic%20icon.png" alt=""><img class="jthumb-gem" src="Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb selected"><img src="../Assets/smile%20face%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/crown%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/holiday%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/magic%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/smile%20face%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/crown%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/holiday%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
+      <div class="jthumb"><img src="../Assets/magic%20icon.png" alt=""><img class="jthumb-gem" src="../Assets/Gem%20icon.png" alt=""></div>
     </div>
 
     <!-- Chat Effect -->
     <div class="ce-hdr"><span class="ce-title">Chat Effect</span><span class="beta-tag">Beta</span></div>
     <div class="ce-banner" id="ceBanner">
       <div class="ce-banner-bg"></div>
-      <div class="ce-hearts"><img src="Assets/Hearts.png" alt=""></div>
-      <div class="ce-thank"><img src="Assets/Thank%20you.png" alt=""></div>
+      <div class="ce-hearts"><img src="../Assets/Hearts.png" alt=""></div>
+      <div class="ce-thank"><img src="../Assets/Thank%20you.png" alt=""></div>
       <div class="ce-main">Happy Friday!</div>
-      <div class="ce-hey"><img src="Assets/Hey.png" alt=""></div>
-      <div class="ce-anycard"><img src="Assets/Any%20card.png" alt=""></div>
+      <div class="ce-hey"><img src="../Assets/Hey.png" alt=""></div>
+      <div class="ce-anycard"><img src="../Assets/Any%20card.png" alt=""></div>
     </div>
 
     <!-- Reaction -->
@@ -723,24 +705,24 @@ html,body{
       <div class="sh"><span class="sh-t">Reaction</span><span class="sh-a">View All <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M9.293 17.707a1 1 0 0 1 0-1.414L13.586 12 9.293 7.707a1 1 0 1 1 1.414-1.414L15 10.586a2 2 0 0 1 0 2.828l-4.293 4.293a1 1 0 0 1-1.414 0" clip-rule="evenodd"/></svg></span></div>
       <div class="r-grid">
         <div class="r-card">
-          <img src="Assets/Crown%20reaction.png" alt="">
+          <img src="../Assets/Crown%20reaction.png" alt="">
           <div class="r-card-btm">
             <div class="r-name">Purple Heart</div>
-            <div class="r-price"><img src="Assets/Gem%20icon.png" alt="">200 <span class="old">2,200</span></div>
+            <div class="r-price"><img src="../Assets/Gem%20icon.png" alt="">200 <span class="old">2,200</span></div>
           </div>
         </div>
         <div class="r-card">
-          <img src="Assets/Football%20reaction.png" alt="">
+          <img src="../Assets/Football%20reaction.png" alt="">
           <div class="r-card-btm">
             <div class="r-name">All Eyes on You</div>
-            <div class="r-price"><img src="Assets/Gem%20icon.png" alt="">200</div>
+            <div class="r-price"><img src="../Assets/Gem%20icon.png" alt="">200</div>
           </div>
         </div>
         <div class="r-card">
-          <img src="Assets/Sneaker%20reaction.png" alt="">
+          <img src="../Assets/Sneaker%20reaction.png" alt="">
           <div class="r-card-btm">
             <div class="r-name">Hand Clap</div>
-            <div class="r-price"><img src="Assets/Gem%20icon.png" alt="">200</div>
+            <div class="r-price"><img src="../Assets/Gem%20icon.png" alt="">200</div>
           </div>
         </div>
       </div>
@@ -757,7 +739,7 @@ html,body{
               <div class="c-name">£5 off Coupon</div>
               <div class="c-qty">Qty: 250</div>
             </div>
-            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">500</div>
+            <div class="c-cprice"><img src="../Assets/Gem%20icon.png" alt="">500</div>
           </div>
         </div>
         <div class="c-item">
@@ -767,7 +749,7 @@ html,body{
               <div class="c-name">£15 off Coupon</div>
               <div class="c-qty">Qty: 480</div>
             </div>
-            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">2,000 <span class="old">10,000</span></div>
+            <div class="c-cprice"><img src="../Assets/Gem%20icon.png" alt="">2,000 <span class="old">10,000</span></div>
           </div>
         </div>
         <div class="c-item">
@@ -777,7 +759,7 @@ html,body{
               <div class="c-name">£50 off Coupon</div>
               <div class="c-qty">Qty: 650</div>
             </div>
-            <div class="c-cprice"><img src="Assets/Gem%20icon.png" alt="">10,000</div>
+            <div class="c-cprice"><img src="../Assets/Gem%20icon.png" alt="">10,000</div>
           </div>
         </div>
       </div>
@@ -794,7 +776,7 @@ html,body{
   <div class="enav">
     <button class="enav-back" id="epBack"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#fff" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
     <div class="enav-title">Chat Effect</div>
-    <div class="enav-gem"><img src="Assets/Gem%20icon.png" alt="">500</div>
+    <div class="enav-gem"><img src="../Assets/Gem%20icon.png" alt="">500</div>
   </div>
 
   <div class="echat" id="epChat">
@@ -815,13 +797,13 @@ html,body{
         <button class="etab on" data-e="gradient"><span class="etab-grad">Gradient</span></button>
         <button class="etab it" data-e="outline" data-text="Outline">Outline</button>
       <button class="etab" data-e="dynamic"><span class="etab-dyn"><span>Dynamic</span><span class="etab-sm"> font</span></span></button>
-      <div class="etab-sw"><img src="Assets/Hahaha.svg" alt="Hahaha"></div>
-      <div class="etab-sw" data-e="pink"><img src="Assets/PinkBubble.svg" alt="Pink"></div>
+      <div class="etab-sw"><img src="../Assets/Hahaha.svg" alt="Hahaha"></div>
+      <div class="etab-sw" data-e="pink"><img src="../Assets/PinkBubble.svg" alt="Pink"></div>
       </div>
     </div>
     <div style="height:64px"></div>
     <div class="edisc">This chat effect will expire <span style="color:#34C759">7 days</span> after purchase.</div>
-    <button class="ebuy" id="buyBtn">Buy for&nbsp;<img src="Assets/Gem%20icon.png" alt="">&nbsp;400</button>
+    <button class="ebuy" id="buyBtn">Buy for&nbsp;<img src="../Assets/Gem%20icon.png" alt="">&nbsp;400</button>
     <div class="ep-kb">
       <div class="kb">
         <div class="kr">
@@ -851,18 +833,18 @@ html,body{
         <div class="cp-card-bg"></div>
         <div class="cp-thread">
           <div class="cp-msg dim cp-msg-top">
-            <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
+            <div class="cp-av"><img src="../Assets/Placeholder%20avatar.png" alt=""></div>
             <div><div class="cp-user">andy</div><div class="cp-text">yay! 🥳🥳🥳</div></div>
           </div>
           <div class="cp-msg-mid">
             <div class="cp-highlight"></div>
             <div class="cp-msg">
-              <div class="cp-av"><img src="Assets/User%20avatar.png" alt=""></div>
+              <div class="cp-av"><img src="../Assets/User%20avatar.png" alt=""></div>
               <div><div class="cp-user">labubunation</div><div class="cp-text gfx">Happy Friday!!!</div></div>
             </div>
           </div>
           <div class="cp-msg dim cp-msg-bot">
-            <div class="cp-av"><img src="Assets/Placeholder%20avatar.png" alt=""></div>
+            <div class="cp-av"><img src="../Assets/Placeholder%20avatar.png" alt=""></div>
             <div><div class="cp-user">gowee</div><div class="cp-text">Hey friends!</div></div>
           </div>
         </div>
@@ -917,7 +899,7 @@ html,body{
   <div class="enav">
     <button class="enav-back" id="tsBack"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#fff" fill-rule="evenodd" d="M16.972 2.293a.97.97 0 0 1 0 1.414L8.333 12l8.639 8.293a.97.97 0 0 1 0 1.414c-.407.39-1.067.39-1.473 0L6.86 13.414a1.944 1.944 0 0 1 0-2.828L15.5 2.293a1.073 1.073 0 0 1 1.473 0" clip-rule="evenodd"/></svg></button>
     <div class="enav-title">Chat Effect</div>
-    <div class="enav-gem"><img src="Assets/Gem%20icon.png" alt="">120</div>
+    <div class="enav-gem"><img src="../Assets/Gem%20icon.png" alt="">120</div>
   </div>
 
   <div class="ts-area">
@@ -1315,70 +1297,32 @@ $('#tsInp').addEventListener('input',()=>{
   $('#tsPh').style.display=$('#tsInp').textContent.length?'none':'';
 });
 
-/* Edit mode on preview screen — FLIP for smooth text movement */
+/* Edit mode on preview screen */
 function enterEditMode(){
-  const msg=$('#epMsg');
-  const kb=$('.ep-kb');
-  const firstRect=msg.getBoundingClientRect();
-
-  kb.style.transition='none';
   scrEP.classList.add('editing');
+  const msg=$('#epMsg');
   if(msg&&!msg.querySelector('.ep-cursor')){
     const cursor=document.createElement('span');
     cursor.className='ep-cursor';
     msg.appendChild(cursor);
   }
-  void kb.offsetWidth;
-
-  const lastRect=msg.getBoundingClientRect();
-  const dy=firstRect.top-lastRect.top;
-  const dx=firstRect.left-lastRect.left;
-
-  msg.style.transform=`translate(${dx}px,${dy}px)`;
-  msg.style.transition='none';
-  requestAnimationFrame(()=>{
-    kb.style.transition='';
-    msg.style.transition='transform .45s cubic-bezier(0,0,0.05,1)';
-    msg.style.transform='translate(0,0)';
-  });
-  setTimeout(()=>{msg.style.transition='';msg.style.transform=''},500);
 }
 function exitEditMode(){
   const msg=$('#epMsg');
-  const firstRect=msg.getBoundingClientRect();
-
   if(msg){
     const cursor=msg.querySelector('.ep-cursor');
     if(cursor)cursor.remove();
     const txt=msg.textContent.trim();
     if(txt.length>0)userMsg=txt;
   }
-
-  const kb=$('.ep-kb');
-  kb.style.transition='none';
   scrEP.classList.remove('editing');
   renderPreview();
-
-  void kb.offsetWidth;
-
-  const lastRect=msg.getBoundingClientRect();
-  const dy=firstRect.top-lastRect.top;
-  const dx=firstRect.left-lastRect.left;
-  msg.style.transform=`translate(${dx}px,${dy}px)`;
-  msg.style.transition='none';
-
-  requestAnimationFrame(()=>{
-    kb.style.transition='';
-    msg.style.transition='transform .2s cubic-bezier(0.4,0,1,1)';
-    msg.style.transform='translate(0,0)';
-  });
-  setTimeout(()=>{msg.style.transition='';msg.style.transform=''},250);
 }
 
 document.addEventListener('click',e=>{
   if(!scrEP.classList.contains('on'))return;
   if(scrEP.classList.contains('editing')){
-    if(!e.target.closest('.ep-kb')&&!e.target.closest('#epMsg')){
+    if(!e.target.closest('.ep-kb')&&!e.target.closest('#epMsg')&&!e.target.closest('.etabs-wrap')){
       exitEditMode();
     }
     return;
