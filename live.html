@@ -618,7 +618,7 @@ function addMessage(){
   const msg=document.createElement('div');
   msg.className='chat-msg';
   msg.style.opacity='0';msg.style.transform='translateY(10px)';
-  msg.style.transition='opacity .3s ease-out,transform .3s ease-out';
+  msg.style.transition='opacity .1s cubic-bezier(0.3,0,0,1),transform .1s cubic-bezier(0.3,0,0,1)';
   const r=Math.random();
   let fxClass='';
   let dataText='';
@@ -675,7 +675,7 @@ function sendUserMessage(){
   const msg=document.createElement('div');
   msg.className='chat-msg';
   msg.style.opacity='0';msg.style.transform='translateY(10px)';
-  msg.style.transition='opacity .3s ease-out,transform .3s ease-out';
+  msg.style.transition='opacity .1s cubic-bezier(0.3,0,0,1),transform .1s cubic-bezier(0.3,0,0,1)';
   msg.innerHTML=`
     <div class="chat-av"><img src="Assets/User%20avatar.png" alt=""></div>
     <div class="chat-body">
