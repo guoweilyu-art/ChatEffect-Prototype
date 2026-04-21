@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Raid Callout — Prototype</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:#0b0b0e;min-height:100vh;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:32px;padding:32px;
+}
+.stage{display:flex;align-items:center;gap:40px;flex-wrap:wrap;justify-content:center}
+
+/* ================= Phone frame (reused from live.html) ================= */
+.phone{
+  width:393px;height:852px;position:relative;overflow:hidden;
+  background:#000;border-radius:44px;border:4px solid #333;flex-shrink:0;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.live-bg{
+  position:absolute;top:-10%;left:-5%;width:110%;height:120%;
+  object-fit:cover;
+}
+.live-overlay-bottom{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(to top,rgba(0,0,0,0.8) 14%,rgba(0,0,0,0) 50%);
+  border-radius:20px;
+}
+.live-overlay-top{
+  position:absolute;top:0;left:0;right:0;height:108px;z-index:1;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0) 100%);
+}
+
+/* ----- Status bar ----- */
+.sbar{
+  position:absolute;top:0;left:0;right:0;z-index:500;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 30px 0;height:54px;
+  font-size:16px;font-weight:600;letter-spacing:-.3px;color:#fff;pointer-events:none;
+}
+.sbar-r{display:flex;gap:5px;align-items:center}
+
+/* ----- Top bar ----- */
+.top-bar{
+  position:absolute;top:54px;left:0;right:0;z-index:10;
+  display:flex;align-items:center;padding:8px 12px;gap:8px;
+}
+.streamer{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.streamer-avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.streamer-avatar img{width:100%;height:100%;object-fit:cover}
+.streamer-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.streamer-name{
+  font-size:14px;font-weight:600;color:#fff;line-height:19px;letter-spacing:-.15px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+.streamer-meta{display:flex;align-items:center;gap:4px;height:20px}
+.star-rating{display:flex;align-items:center;gap:2px}
+.star-rating img{width:12px;height:12px}
+.star-rating span{
+  font-size:12px;font-weight:600;color:rgba(255,255,255,.8);line-height:16px;
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+.follow-btn{
+  background:#f9dc00;color:#161616;border:none;border-radius:999px;
+  padding:3px 8px 4px;font-size:10px;font-weight:600;line-height:12px;letter-spacing:.12px;
+  cursor:pointer;height:20px;font-family:inherit;
+}
+.top-controls{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.live-meta-count{display:flex;align-items:center;gap:2px}
+.live-meta-dot{
+  width:12px;height:12px;border-radius:50%;
+  background:#ce291a;
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:1px;padding-bottom:2px;
+}
+.live-meta-bar{background:#fff;border-radius:40px;width:1.5px}
+.live-meta-bar1{animation:mbar1 1.2s ease-in-out infinite}
+.live-meta-bar2{animation:mbar2 1.2s ease-in-out infinite}
+.live-meta-bar3{animation:mbar3 1.2s ease-in-out infinite}
+@keyframes mbar1{0%,100%{height:4px}33%{height:6px}66%{height:2.5px}}
+@keyframes mbar2{0%,100%{height:5px}33%{height:2.5px}66%{height:4px}}
+@keyframes mbar3{0%,100%{height:3.5px}33%{height:4px}66%{height:6px}}
+.live-meta-count span{
+  font-size:12px;font-weight:600;color:rgba(255,255,255,.7);line-height:16px;
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+
+.rewards-badge{
+  width:28px;height:28px;border-radius:999px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.rewards-badge img{width:100%;height:100%;object-fit:contain}
+.top-dropdown{
+  width:32px;height:32px;border-radius:999px;
+  background:rgba(0,0,0,.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+}
+.top-dropdown img{width:20px;height:20px}
+
+/* ----- Watch-shows / Challenge in Live badge ----- */
+.watch-badge{
+  position:absolute;top:110px;left:12px;z-index:10;
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+}
+.watch-gem{width:28px;height:28px;margin-left:28px}
+.watch-label{
+  background:rgba(0,0,0,.6);border-radius:6px;padding:4px 8px;
+  display:flex;flex-direction:column;
+}
+.watch-label-t{font-size:12px;font-weight:600;color:#fff;line-height:16px}
+.watch-label-time{font-size:10px;font-weight:400;color:rgba(255,255,255,.7);line-height:12px}
+.watch-progress{
+  width:78px;height:3px;border-radius:2px;margin-top:4px;
+  background:rgba(255,255,255,.25);overflow:hidden;
+}
+.watch-progress>i{
+  display:block;height:100%;width:38%;background:#f9dc00;border-radius:2px;
+}
+
+/* ================= Chat + sidebar ================= */
+.chat-sidebar{
+  position:absolute;bottom:198px;left:0;right:0;z-index:10;
+  display:flex;align-items:flex-end;
+  padding:0 6px 0 16px;
+}
+.chat-col{
+  flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;
+  margin-right:32px;
+}
+.chat-area{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;gap:8px;
+  justify-content:flex-end;
+  max-height:260px;overflow:hidden;
+}
+
+.chat-msg{display:flex;align-items:flex-start;gap:8px}
+.chat-av{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-top:2px}
+.chat-av img{width:100%;height:100%;object-fit:cover}
+.chat-body{display:flex;flex-direction:column;flex:1;min-width:0}
+.chat-user{
+  font-size:14px;font-weight:400;color:#d2d2d2;line-height:19px;letter-spacing:-.15px;
+  height:18px;overflow:hidden;text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+.chat-text{
+  font-size:13px;font-weight:600;color:#fff;line-height:18px;letter-spacing:-.08px;
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+
+.input-bar{display:flex;align-items:center;gap:8px}
+.input-field{
+  flex:1;height:36px;border-radius:48px;
+  background:transparent;border:1px solid rgba(255,255,255,.4);
+  padding:0 12px;
+  font-size:14px;line-height:19px;letter-spacing:-.15px;
+  color:rgba(255,255,255,.7);font-weight:400;
+  display:flex;align-items:center;
+}
+.input-hand{
+  width:44px;height:36px;border-radius:999px;flex-shrink:0;
+  background:rgba(255,255,255,.1);
+  backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.input-hand img{width:32px;height:32px}
+
+.sidebar{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  flex-shrink:0;width:48px;
+}
+.sb-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sb-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;position:relative}
+.sb-icon img{width:24px;height:24px;filter:brightness(0) invert(1)}
+.sb-label{
+  font-size:10px;font-weight:400;color:#fff;line-height:12px;letter-spacing:.12px;
+  text-shadow:0 1px 1px rgba(0,0,0,.3);
+}
+.sb-dot{
+  position:absolute;top:-2px;right:-2px;
+  width:10px;height:10px;border-radius:50%;
+  background:#ff3b30;border:1.5px solid rgba(0,0,0,.3);
+}
+.sb-shop{
+  width:48px;height:52px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.sb-shop-cards{position:relative;width:40px;height:40px}
+.sb-shop-card{position:absolute;left:50%;transform:translateX(-50%);overflow:hidden}
+.sb-shop-card:nth-child(1){width:24px;height:24px;border-radius:3px;opacity:.2;top:-8px}
+.sb-shop-card:nth-child(2){width:32px;height:32px;border-radius:4px;opacity:.8;top:-2px}
+.sb-shop-card:nth-child(3){width:40px;height:40px;border-radius:5px;top:4px}
+.sb-shop-card img{width:100%;height:100%;object-fit:cover}
+.sb-shop-count{
+  position:absolute;top:0;right:0;z-index:1;
+  background:#fff;color:#000;font-size:9px;font-weight:600;
+  min-width:12px;height:12px;border-radius:38px;
+  display:flex;align-items:center;justify-content:center;
+  padding:2px;letter-spacing:.12px;
+}
+
+/* ================= Purchase bar ================= */
+.purchase-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  background:transparent;padding:0 16px 34px;
+}
+.purchase-inner{display:flex;flex-direction:column;gap:16px}
+.purchase-wp{display:flex;flex-direction:column;gap:8px}
+.purchase-winner{display:flex;align-items:center;gap:4px}
+.purchase-winner-av{width:16px;height:16px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.purchase-winner-av img{width:100%;height:100%;object-fit:cover}
+.purchase-winner-name{font-size:12px;font-weight:600;color:#fff;line-height:16px}
+.purchase-winner-label{font-size:12px;font-weight:600;color:#f9dc00;line-height:16px}
+.purchase-item{display:flex;align-items:flex-start;gap:12px;min-height:64px}
+.purchase-img{
+  width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;
+  border:1px solid #fff;
+}
+.purchase-img img{width:100%;height:100%;object-fit:cover}
+.purchase-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;min-height:64px}
+.purchase-title{font-size:16px;font-weight:600;color:#fff;line-height:21px;letter-spacing:-.31px}
+.purchase-desc{font-size:13px;font-weight:400;color:#fff;line-height:18px;letter-spacing:-.08px}
+.purchase-ship{font-size:13px;font-weight:400;color:rgba(255,255,255,.8);line-height:18px;letter-spacing:-.08px}
+.purchase-price{text-align:right;flex-shrink:0;width:64px;display:flex;flex-direction:column;align-items:flex-end}
+.purchase-amount{font-size:16px;font-weight:600;color:#fff;line-height:21px;letter-spacing:-.31px}
+.purchase-sold{font-size:13px;font-weight:600;color:#ef233c;line-height:18px;letter-spacing:-.08px}
+.purchase-btn{
+  width:100%;height:44px;border-radius:999px;
+  background:rgba(255,255,255,.2);color:rgba(255,255,255,.5);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:none;font-size:16px;font-weight:600;line-height:20px;letter-spacing:-.41px;
+  font-family:inherit;
+}
+
+/* Home indicator */
+.hind{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:2.5px;background:rgba(255,255,255,.3);z-index:20;
+}
+
+/* ================= Raid Callout (overlay) ================= */
+/*
+  Mounted as a DIRECT CHILD of .phone (not inside .chat-area) so it sits
+  at the top of the phone's stacking context with a clean z-index above
+  chat-sidebar (10), purchase-bar (10), and other phone chrome. This avoids
+  the paint-order issue where a callout nested inside chat-sidebar (z:10)
+  was getting occluded by sibling chat-msg elements in complex flex stacking.
+
+  The callout floats above the chat thread at bottom:322px and does not
+  affect chat message layout.
+*/
+.raid-callout{
+  --raid-hl:#ffe414;
+  position:absolute;
+  left:8px;
+  bottom:442px;
+  width:239px;height:52px;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 4px 8px 10px;
+  background:rgba(0,0,0,.4);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:26px;
+  overflow:visible;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  z-index:30;
+  pointer-events:none;
+}
+/* Figma animation spec, implemented as CSS keyframes:
+   - Enter: 600ms cubic-bezier(0.05, 0.7, 0.1, 1), translateX(-100% -> 0), opacity 0.6 -> 1
+   - Exit:  400ms cubic-bezier(0.3, 0, 0.8, 0.15), translateX(0 -> -50%), opacity 1 -> 0
+   Keyframe animations are used instead of transitions because they are more
+   reliable across rendering environments (they auto-play on element mount
+   without needing a JS RAF trigger dance to commit the initial state). */
+@keyframes raid-callout-enter{
+  from { transform:translateX(-100%); opacity:0.6; }
+  to   { transform:translateX(0);     opacity:1;   }
+}
+@keyframes raid-callout-exit{
+  from { transform:translateX(0);    opacity:1; }
+  to   { transform:translateX(-50%); opacity:0; }
+}
+.raid-callout{
+  animation:raid-callout-enter 600ms cubic-bezier(0.05,0.7,0.1,1) both;
+}
+.raid-callout[data-phase="exit"]{
+  animation:raid-callout-exit 400ms cubic-bezier(0.3,0,0.8,0.15) both;
+}
+
+.raid-callout-av{
+  width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;
+}
+.raid-callout-av img{width:100%;height:100%;object-fit:cover}
+.raid-callout-txt{
+  display:flex;flex-direction:column;justify-content:center;
+  min-width:0;flex-shrink:1;gap:0;
+}
+.raid-callout-name{
+  font-size:13px;font-weight:400;color:#d2d2d2;line-height:18px;letter-spacing:-.08px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+.raid-callout-sub{
+  font-size:13px;font-weight:590;color:#d2d2d2;line-height:18px;letter-spacing:-.08px;
+  white-space:nowrap;
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+.raid-callout-hl{color:var(--raid-hl);font-weight:590}
+
+.raid-callout-tail{
+  margin-left:auto;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-end;align-self:flex-end;flex-shrink:0;gap:2px;
+  width:74px;overflow:visible;
+}
+.raid-callout-avs{
+  position:relative;width:68px;height:28px;
+}
+.raid-callout-avs .av{
+  position:absolute;border-radius:50%;overflow:hidden;
+  background:#222;
+}
+.raid-callout-avs .av img{width:100%;height:100%;object-fit:cover;display:block}
+.av-more-label{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.65);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  font-size:9px;font-weight:700;letter-spacing:2px;line-height:1;
+}
+.raid-callout-joined{
+  font-size:13px;font-weight:700;font-style:italic;color:#fff;line-height:18px;letter-spacing:-.08px;
+  white-space:nowrap;
+  text-shadow:0 1px 1px rgba(0,0,0,.3);
+}
+
+/* ---- data-count variants ---- */
+/* 1 joined: single 32x32 avatar centered */
+.raid-callout-avs[data-count="1"] .av{
+  width:32px;height:32px;top:-2px;left:18px;
+}
+
+/* 2 joined: two 24x24 with one having a moon-cut on its left edge */
+.raid-callout-avs[data-count="2"] .av{width:24px;height:24px;top:2px}
+.raid-callout-avs[data-count="2"] .av:nth-child(1){left:12px}
+.raid-callout-avs[data-count="2"] .av:nth-child(2){left:32px}
+/* The right-side avatar gets a moon-shaped cut where the left avatar overlaps it. */
+.raid-callout-avs[data-count="2"] .av:nth-child(2){
+  -webkit-mask: radial-gradient(circle 14px at -4px 12px, transparent 99%, #000 100%);
+          mask: radial-gradient(circle 14px at -4px 12px, transparent 99%, #000 100%);
+}
+
+/* 3 joined: triangular 20x20 cluster */
+.raid-callout-avs[data-count="3"] .av{width:20px;height:20px}
+.raid-callout-avs[data-count="3"] .av:nth-child(1){left:8px;top:8px}
+.raid-callout-avs[data-count="3"] .av:nth-child(2){left:24px;top:-2px}
+.raid-callout-avs[data-count="3"] .av:nth-child(3){left:40px;top:8px}
+
+/* 4 joined: 2x2 grid of 20x20 */
+.raid-callout-avs[data-count="4"] .av{width:20px;height:20px}
+.raid-callout-avs[data-count="4"] .av:nth-child(1){left:14px;top:-2px}
+.raid-callout-avs[data-count="4"] .av:nth-child(2){left:34px;top:-2px}
+.raid-callout-avs[data-count="4"] .av:nth-child(3){left:14px;top:14px}
+.raid-callout-avs[data-count="4"] .av:nth-child(4){left:34px;top:14px}
+
+/* 5+ joined: five 20x20 in Figma arc (2 top, 3 bottom) + "..." overlay */
+.raid-callout-avs[data-count="5"]{width:70px;height:44px;}
+.raid-callout-avs[data-count="5"] .av{width:20px;height:20px}
+.raid-callout-avs[data-count="5"] .av:nth-child(1){left:24px;top:24px}
+.raid-callout-avs[data-count="5"] .av:nth-child(2){left:36px;top:2px}
+.raid-callout-avs[data-count="5"] .av:nth-child(3){left:12px;top:2px}
+.raid-callout-avs[data-count="5"] .av:nth-child(4){left:0px;top:24px}
+.raid-callout-avs[data-count="5"] .av:nth-child(5){left:48px;top:24px}
+
+/* ================= Dev panel ================= */
+.dev-panel{
+  width:260px;background:#17171c;border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:20px;color:#fff;
+  display:flex;flex-direction:column;gap:18px;
+  font-size:13px;font-family:inherit;
+}
+.dev-title{font-size:15px;font-weight:700;letter-spacing:-.2px}
+.dev-sub{font-size:12px;font-weight:400;color:rgba(255,255,255,.55);line-height:16px;margin-top:4px}
+
+.dev-group{display:flex;flex-direction:column;gap:8px}
+.dev-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.5);font-weight:600}
+
+.dev-pills{display:flex;gap:6px;flex-wrap:wrap}
+.dev-pill{
+  flex:1;min-width:40px;height:32px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);color:#fff;font:inherit;font-weight:600;font-size:13px;cursor:pointer;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.dev-pill:hover{background:rgba(255,255,255,.08)}
+.dev-pill.active{background:var(--raid-hl,#F562A7);border-color:var(--raid-hl,#F562A7);color:#fff}
+
+.dev-input{
+  width:100%;height:36px;border-radius:10px;padding:0 12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  color:#fff;font:inherit;font-size:13px;
+}
+.dev-input:focus{outline:none;border-color:rgba(255,255,255,.3)}
+
+.dev-btn{
+  height:44px;border-radius:999px;border:none;
+  background:#F9DC00;color:#161616;font:inherit;font-weight:700;font-size:14px;letter-spacing:.12px;
+  cursor:pointer;transition:transform .1s ease,filter .15s ease;
+}
+.dev-btn:hover{filter:brightness(1.05)}
+.dev-btn:active{transform:scale(.98)}
+
+.dev-foot{
+  font-size:11px;color:rgba(255,255,255,.4);line-height:15px;
+  border-top:1px solid rgba(255,255,255,.06);padding-top:12px;
+}
+.dev-foot code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;
+  background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;
+}
+
+/* ---- Responsive: stack panel below phone on narrow screens ---- */
+@media (max-width:820px){
+  body{flex-direction:column;padding:20px}
+  .stage{flex-direction:column;gap:20px}
+  .dev-panel{width:393px;max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ================= Phone ================= -->
+  <div class="phone">
+    <!-- Video background -->
+    <video class="live-bg" autoplay loop muted playsinline>
+      <source src="../Assets/live-recording.mp4" type="video/mp4">
+      <source src="../Assets/live-recording.mov" type="video/quicktime">
+    </video>
+    <div class="live-overlay-bottom"></div>
+    <div class="live-overlay-top"></div>
+
+    <!-- Status bar -->
+    <div class="sbar">
+      <span>9:41</span>
+      <div class="sbar-r">
+        <svg width="18" height="12" fill="none"><rect x="1" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="5.5" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="10" y="0" width="3" height="12" rx="1" fill="#fff"/><rect x="14.5" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+        <svg width="16" height="12" fill="#fff"><path d="M8 1.6A8.7 8.7 0 0 1 14.6 4l1-1.2A10.4 10.4 0 0 0 8 0 10.4 10.4 0 0 0 .4 2.8L1.4 4A8.7 8.7 0 0 1 8 1.6Zm0 3.2c1.7 0 3.3.6 4.5 1.7l1-1.2A7.5 7.5 0 0 0 8 3.2a7.5 7.5 0 0 0-5.5 2.1l1 1.2A5.9 5.9 0 0 1 8 4.8Zm0 3.2c1 0 2 .4 2.7 1l1-1.1A5 5 0 0 0 8 6.4a5 5 0 0 0-3.7 1.5l1 1.1c.7-.6 1.7-1 2.7-1ZM9.2 10a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0Z"/></svg>
+        <svg width="27" height="13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity=".35"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/><path d="M25 5v3a2 2 0 0 0 0-3Z" fill="#fff" fill-opacity=".4"/></svg>
+      </div>
+    </div>
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="streamer">
+        <div class="streamer-avatar"><img src="../Assets/streamer-avatar-32.png" alt=""></div>
+        <div class="streamer-info">
+          <div class="streamer-name">mytycoco</div>
+          <div class="streamer-meta">
+            <div class="star-rating">
+              <img src="../Assets/icon-star.svg" alt="">
+              <span>4.9</span>
+            </div>
+            <button class="follow-btn">Follow</button>
+          </div>
+        </div>
+      </div>
+      <div class="top-controls">
+        <div class="rewards-badge"><img src="../Assets/rewards-badge.png" alt=""></div>
+        <div class="live-meta-count" style="background:#ce291a;border-radius:999px;padding:4px 8px 4px 6px;gap:4px">
+          <div class="live-meta-dot" style="width:12px;height:12px">
+            <div class="live-meta-bar live-meta-bar1"></div>
+            <div class="live-meta-bar live-meta-bar2"></div>
+            <div class="live-meta-bar live-meta-bar3"></div>
+          </div>
+          <span>120</span>
+        </div>
+        <div class="top-dropdown"><img src="../Assets/icon-arrow-down.svg" alt=""></div>
+      </div>
+    </div>
+
+    <!-- Watch shows / Challenge badge -->
+    <div class="watch-badge">
+      <img class="watch-gem" src="../Assets/Gem%20icon.png" alt="">
+      <div class="watch-label">
+        <span class="watch-label-t">Watch shows</span>
+        <span class="watch-label-time">07:00</span>
+      </div>
+      <div class="watch-progress"><i></i></div>
+    </div>
+
+    <!-- Chat + Sidebar -->
+    <div class="chat-sidebar">
+      <div class="chat-col">
+        <div class="chat-area" id="chatArea">
+          <!-- Static chat messages -->
+          <div class="chat-msg">
+            <div class="chat-av"><img src="../Assets/chat-avatar1.png" alt=""></div>
+            <div class="chat-body">
+              <div class="chat-user">somedude</div>
+              <div class="chat-text">Hey</div>
+            </div>
+          </div>
+          <div class="chat-msg">
+            <div class="chat-av"><img src="../Assets/chat-avatar1.png" alt=""></div>
+            <div class="chat-body">
+              <div class="chat-user">somedude</div>
+              <div class="chat-text">can't wait for this weeks show!</div>
+            </div>
+          </div>
+          <div class="chat-msg">
+            <div class="chat-av"><img src="../Assets/chat-avatar2.png" alt=""></div>
+            <div class="chat-body">
+              <div class="chat-user">lilbawler</div>
+              <div class="chat-text">yay! &#128515;&#128515;&#128515;</div>
+            </div>
+          </div>
+          <div class="chat-msg">
+            <div class="chat-av"><img src="../Assets/chat-avatar3.png" alt=""></div>
+            <div class="chat-body">
+              <div class="chat-user">notstarr</div>
+              <div class="chat-text">my wallet is ready</div>
+            </div>
+          </div>
+        </div>
+        <div class="input-bar">
+          <div class="input-field">Say something...</div>
+          <div class="input-hand"><img src="../Assets/hand-entry.png" alt=""></div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="sb-item"><div class="sb-icon"><img src="../Assets/icon-more.svg" alt=""></div><span class="sb-label">More</span></div>
+        <div class="sb-item"><div class="sb-icon"><img src="../Assets/icon-boost.svg" alt=""></div><span class="sb-label">Boost</span></div>
+        <div class="sb-item"><div class="sb-icon"><img src="../Assets/icon-clip.svg" alt=""></div><span class="sb-label">Clip</span></div>
+        <div class="sb-item"><div class="sb-icon"><img src="../Assets/icon-share.svg" alt=""></div><span class="sb-label">Share</span></div>
+        <div class="sb-item"><div class="sb-icon"><img src="../Assets/icon-wallet.svg" alt=""><div class="sb-dot"></div></div><span class="sb-label">Wallet</span></div>
+        <div class="sb-item" style="margin-top:4px">
+          <div class="sb-shop">
+            <div class="sb-shop-cards">
+              <div class="sb-shop-card"><img src="../Assets/shop-card-bg.png" alt=""></div>
+              <div class="sb-shop-card"><img src="../Assets/shop-card-bg.png" alt=""></div>
+              <div class="sb-shop-card"><img src="../Assets/shop-card-main.png" alt=""></div>
+            </div>
+            <div class="sb-shop-count">56</div>
+          </div>
+          <span class="sb-label">Shop</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Purchase bar -->
+    <div class="purchase-bar">
+      <div class="purchase-inner">
+        <div class="purchase-wp">
+          <div class="purchase-winner">
+            <div class="purchase-winner-av"><img src="../Assets/winner-avatar.png" alt=""></div>
+            <span class="purchase-winner-name">kellykim&nbsp;</span>
+            <span class="purchase-winner-label">won!</span>
+          </div>
+          <div class="purchase-item">
+            <div class="purchase-img"><img src="../Assets/product-item.png" alt=""></div>
+            <div class="purchase-info">
+              <div class="purchase-title">Popmart item #3</div>
+              <div class="purchase-desc">Authentic Pop Mart Item</div>
+              <div class="purchase-ship">$4.13 Shipping + Taxes</div>
+            </div>
+            <div class="purchase-price">
+              <div class="purchase-amount">$49</div>
+              <div class="purchase-sold">Sold</div>
+            </div>
+          </div>
+        </div>
+        <button class="purchase-btn">Awaiting Next Item</button>
+      </div>
+    </div>
+
+    <div class="hind"></div>
+  </div>
+
+  <!-- ================= Dev panel (outside phone) ================= -->
+  <div class="dev-panel" aria-label="Raid Callout controls">
+    <div>
+      <div class="dev-title">Raid Callout</div>
+      <div class="dev-sub">Auto-plays once on load. Adjust parameters then Replay to see.</div>
+    </div>
+
+    <div class="dev-group">
+      <div class="dev-label">Raider count</div>
+      <div class="dev-pills" id="countPills" role="radiogroup" aria-label="Raider count">
+        <button class="dev-pill" data-count="1" role="radio">1</button>
+        <button class="dev-pill" data-count="2" role="radio">2</button>
+        <button class="dev-pill" data-count="3" role="radio">3</button>
+        <button class="dev-pill" data-count="4" role="radio">4</button>
+        <button class="dev-pill active" data-count="5" role="radio" aria-checked="true">5+</button>
+      </div>
+    </div>
+
+    <div class="dev-group">
+      <div class="dev-label">Raiding streamer</div>
+      <input class="dev-input" id="nameInput" type="text" value="labubunation" autocomplete="off">
+    </div>
+
+    <div class="dev-group">
+      <div class="dev-label">Joined count</div>
+      <input class="dev-input" id="joinedInput" type="number" min="1" value="72">
+    </div>
+
+    <button class="dev-btn" id="replayBtn">Replay Raid</button>
+
+    <div class="dev-foot">
+      Animation spec — Enter <code>600ms</code> · Display <code>3000ms</code> · Exit <code>400ms</code>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ---- Available avatar pool for the stacked "raiders" thumbnails ----
+  var RAIDER_AVATARS = [
+    '../Assets/chat-avatar1.png',
+    '../Assets/chat-avatar2.png',
+    '../Assets/chat-avatar3.png',
+    '../Assets/winner-avatar.png',
+    '../Assets/User%20avatar.png'
+  ];
+  var RAID_LEADER_AVATAR = '../Assets/labubunation-avatar.png';
+
+  var state = {
+    count: 5,          // 1..5 (5 means "5+")
+    name:  'labubunation',
+    joined: 72
+  };
+
+  var phoneEl   = document.querySelector('.phone');
+  var countPills = document.getElementById('countPills');
+  var nameInput  = document.getElementById('nameInput');
+  var joinedInput= document.getElementById('joinedInput');
+  var replayBtn  = document.getElementById('replayBtn');
+
+  var current = null;
+  var timers  = [];
+
+  // ---- Chat feed ----
+  var chatAreaEl = document.getElementById('chatArea');
+  var chatAvatars = [
+    '../Assets/chat-avatar1.png',
+    '../Assets/chat-avatar2.png',
+    '../Assets/chat-avatar3.png',
+    '../Assets/winner-avatar.png',
+    '../Assets/streamer-avatar-32.png'
+  ];
+  var chatUsers = [
+    'somedude','lilbawler','notstarr','kellykim','bigfan99',
+    'sneakerhead','popmart_lover','chill_vibes','hype_beast','lucky_duck'
+  ];
+  var chatMessages = [
+    'lets gooo 🔥','omg this is sick','take my money 💰','need this so bad',
+    'first time here!','wow amazing','how much??','🙌🙌🙌',
+    'this is fire','love this show!','wait for me!','❤️❤️❤️',
+    'yooo','haha nice','ship to UK?','so cool!',
+    'been waiting all week','W show','lets get it!','🎉🎉',
+    'add to cart!','grail alert 🚨','insane collection','💪💪💪',
+    'who got the last one?','next item pls','i need this','bruh 😭',
+    'GL everyone','happy friday!','🤞🤞🤞','sheeeesh'
+  ];
+
+  function addChatMessage() {
+    var avatar = chatAvatars[Math.floor(Math.random() * chatAvatars.length)];
+    var user   = chatUsers[Math.floor(Math.random() * chatUsers.length)];
+    var text   = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+
+    var msg = document.createElement('div');
+    msg.className = 'chat-msg';
+    msg.style.cssText = 'opacity:0;transform:translateY(10px);transition:opacity .1s cubic-bezier(.3,0,0,1),transform .1s cubic-bezier(.3,0,0,1)';
+    msg.innerHTML =
+      '<div class="chat-av"><img src="' + avatar + '" alt=""></div>' +
+      '<div class="chat-body">' +
+        '<div class="chat-user">' + esc(user) + '</div>' +
+        '<div class="chat-text">' + esc(text) + '</div>' +
+      '</div>';
+
+    chatAreaEl.appendChild(msg);
+    requestAnimationFrame(function() {
+      msg.style.opacity = '1';
+      msg.style.transform = 'translateY(0)';
+    });
+
+    while (chatAreaEl.querySelectorAll('.chat-msg').length > 5) {
+      chatAreaEl.querySelector('.chat-msg').remove();
+    }
+    if (chatAreaEl.scrollHeight > chatAreaEl.clientHeight) {
+      chatAreaEl.style.webkitMaskImage =
+        'linear-gradient(to bottom,transparent 0%,transparent 8%,black 18%)';
+      chatAreaEl.style.maskImage =
+        'linear-gradient(to bottom,transparent 0%,transparent 8%,black 18%)';
+    }
+  }
+
+  setInterval(addChatMessage, 1500 + Math.random() * 2000);
+  setTimeout(function() {
+    setInterval(addChatMessage, 2000 + Math.random() * 3000);
+  }, 800);
+
+  function clearTimers(){
+    timers.forEach(clearTimeout);
+    timers = [];
+  }
+
+  function cancel(){
+    clearTimers();
+    if (current && current.parentNode) current.parentNode.removeChild(current);
+    current = null;
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  function buildAvsHTML(count){
+    var n = Math.min(count, 5);
+    var html = '';
+    for (var i=0; i<n; i++){
+      var src = RAIDER_AVATARS[i % RAIDER_AVATARS.length];
+      if (i === 4 && count >= 5) {
+        html += '<div class="av av-more"><img src="'+src+'" alt=""><div class="av-more-label">\u00B7\u00B7\u00B7</div></div>';
+      } else {
+        html += '<div class="av"><img src="'+src+'" alt=""></div>';
+      }
+    }
+    return html;
+  }
+
+  function joinedLabel(){
+    var n = state.joined;
+    if (state.count <= 4) n = state.count; // 1..4 joined matches the avatar count
+    return n + ' joined';
+  }
+
+  function buildCallout(){
+    var el = document.createElement('div');
+    el.className = 'raid-callout';
+    el.setAttribute('data-count', String(state.count));
+    el.innerHTML =
+      '<div class="raid-callout-av"><img src="'+RAID_LEADER_AVATAR+'" alt=""></div>'+
+      '<div class="raid-callout-txt">'+
+        '<div class="raid-callout-name">'+esc(state.name)+'</div>'+
+        '<div class="raid-callout-sub"><span class="raid-callout-hl">raid</span> with a party</div>'+
+      '</div>'+
+      '<div class="raid-callout-tail">'+
+        '<div class="raid-callout-avs" data-count="'+state.count+'">'+buildAvsHTML(state.count)+'</div>'+
+        '<div class="raid-callout-joined">'+esc(joinedLabel())+'</div>'+
+      '</div>';
+    return el;
+  }
+
+  // Full Figma Animation Spec timing:
+  //   Enter   600ms  cubic-bezier(0.05, 0.7, 0.1, 1)   translateX(-100% -> 0), opacity 0.6 -> 1
+  //   Display 3000ms hold
+  //   Exit    400ms  cubic-bezier(0.3, 0, 0.8, 0.15)   translateX(0 -> -50%),  opacity 1 -> 0
+  function playRaid(){
+    cancel();
+    current = buildCallout();
+    phoneEl.appendChild(current);
+
+    // Enter is a CSS keyframe animation that auto-plays on mount.
+    // Schedule the exit phase and cleanup.
+    var node = current;
+    timers.push(setTimeout(function(){
+      if (node !== current) return;
+      node.setAttribute('data-phase', 'exit');
+    }, 600 + 3000));
+
+    timers.push(setTimeout(function(){
+      if (node.parentNode) node.parentNode.removeChild(node);
+      if (node === current) current = null;
+    }, 600 + 3000 + 400));
+  }
+
+  // ---- Dev panel wiring ----
+  countPills.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.dev-pill');
+    if (!btn) return;
+    var next = parseInt(btn.getAttribute('data-count'), 10);
+    if (!next) return;
+    state.count = next;
+    Array.prototype.forEach.call(countPills.querySelectorAll('.dev-pill'), function(p){
+      var on = p === btn;
+      p.classList.toggle('active', on);
+      p.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+  });
+
+  nameInput.addEventListener('input', function(){
+    state.name = nameInput.value.trim() || 'labubunation';
+  });
+
+  joinedInput.addEventListener('input', function(){
+    var v = parseInt(joinedInput.value, 10);
+    if (isNaN(v) || v < 1) v = 1;
+    state.joined = v;
+  });
+
+  replayBtn.addEventListener('click', playRaid);
+
+  // ---- Auto-play once on load ----
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(playRaid, 800);
+    });
+  } else {
+    setTimeout(playRaid, 800);
+  }
+})();
+</script>
+
+</body>
+</html>
